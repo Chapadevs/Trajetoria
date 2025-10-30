@@ -19,7 +19,7 @@ const FormLayout = ({ children, currentStep = 1, totalSteps = 3, progress = 33 }
               </defs>
             </svg>
           </div>
-          <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight">Tragetória</h2>
+          <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight">Trajetória</h2>
         </Link>
         <Link to="/" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
           Voltar ao site

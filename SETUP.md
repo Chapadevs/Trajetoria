@@ -71,7 +71,7 @@ After you're satisfied with the frontend:
 ## Project Structure Explained
 
 ```
-Tragetória/
+Trajetória/
 ├── src/
 │   ├── components/         # Reusable UI components
 │   │   ├── Header.jsx      # Top navigation bar

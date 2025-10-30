@@ -16,7 +16,7 @@ const Footer = () => {
             </svg>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            © 2025 Tragetória. Todos os direitos reservados.
+            © 2025 Trajetória. Todos os direitos reservados.
           </p>
         </div>
         
