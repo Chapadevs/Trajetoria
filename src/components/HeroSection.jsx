@@ -22,10 +22,11 @@ const HeroSection = () => {
       <div className="relative z-10 container mx-auto flex max-w-7xl flex-col items-center gap-10 px-4 text-center sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl font-black leading-tight tracking-tighter text-white dark:text-white md:text-5xl lg:text-6xl">
-            Avançando a Pesquisa em Saúde Mental
+            Descubra o seu caminho. Construa a sua trajetória.
           </h1>
           <h2 className="mx-auto max-w-3xl text-lg font-normal text-gray-300 dark:text-slate-300">
-            Participe do nosso estudo de pesquisa psiquiátrica e contribua para uma melhor compreensão da saúde mental. Sua participação ajuda a avançar o conhecimento científico e melhorar as abordagens de tratamento.
+          A Trajetória conecta autoconhecimento, tecnologia e design para ajudar jovens a encontrarem propósito, direção e confiança em meio às mudanças do mundo contemporâneo.
+          Por meio de testes de personalidade, trilhas de aprendizado e relatórios personalizados, você compreende suas forças, valores e habilidades — passo a passo.
           </h2>
         </div>
         

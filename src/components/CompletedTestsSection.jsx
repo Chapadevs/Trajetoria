@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const CompletedTestsSection = () => {
   const navigate = useNavigate()
   const [completedTests, setCompletedTests] = useState({})
   const [hasCompletedTests, setHasCompletedTests] = useState(false)
+  const scrollContainerRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
 
   useEffect(() => {
     // Carrega os testes concluídos do localStorage
@@ -12,6 +15,40 @@ const CompletedTestsSection = () => {
     setCompletedTests(tests)
     setHasCompletedTests(Object.keys(tests).length > 0)
   }, [])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
+        setCanScrollLeft(scrollLeft > 0)
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
+      }
+    }
+
+    const container = scrollContainerRef.current
+    if (container) {
+      container.addEventListener('scroll', handleScroll)
+      // Check after a small delay to ensure content is rendered
+      setTimeout(handleScroll, 100)
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [completedTests])
+
+  const scroll = (direction) => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 450
+      const newScrollLeft = scrollContainerRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount)
+      scrollContainerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      })
+    }
+  }
 
   const getTestInfo = (testId) => {
     const testInfoMap = {
@@ -195,13 +232,15 @@ const CompletedTestsSection = () => {
     return null
   }
 
+  const completedTestsArray = Object.entries(completedTests)
+
   return (
     <section className="w-full bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 py-16 lg:py-20">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-[95%] px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="mb-10 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
+        <div className="mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
+            <div className="flex items-center gap-2 mb-2 justify-center sm:justify-start">
               <span className="material-symbols-outlined text-green-500">verified</span>
               <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                 Seus Resultados
@@ -216,70 +255,168 @@ const CompletedTestsSection = () => {
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
           >
             <span className="material-symbols-outlined text-base">delete</span>
-            <span className="hidden sm:inline">Limpar Tudo</span>
+            <span>Limpar Tudo</span>
           </button>
         </div>
 
-        {/* Completed Tests Grid */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(completedTests).map(([testId, testData]) => {
-            const testInfo = getTestInfo(testId)
-            
-            return (
-              <div
-                key={testId}
-                className={`group relative overflow-hidden rounded-xl border-2 ${testInfo.borderColor} ${testInfo.bgColor} backdrop-blur-sm transition-all hover:shadow-lg`}
-              >
-                {/* Success Badge */}
-                <div className="absolute top-3 right-3">
-                  <div className="flex items-center gap-1 rounded-full bg-green-500 px-2 py-1">
-                    <span className="material-symbols-outlined text-white text-xs">check_circle</span>
-                    <span className="text-xs font-bold text-white">Completo</span>
-                  </div>
-                </div>
+        {/* Horizontal Completed Tests Timeline */}
+        <div className="relative">
+          {/* Left Arrow */}
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 rounded-full p-3 shadow-2xl transition-all hover:scale-110"
+              aria-label="Scroll Left"
+            >
+              <span className="material-symbols-outlined text-3xl">chevron_left</span>
+            </button>
+          )}
 
-                <div className="p-6">
-                  {/* Icon & Title */}
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className={`flex size-12 items-center justify-center rounded-lg ${testInfo.iconBg} text-white flex-shrink-0`}>
-                      <span className="material-symbols-outlined">{testInfo.icon}</span>
+          {/* Right Arrow */}
+          {canScrollRight && (
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 rounded-full p-3 shadow-2xl transition-all hover:scale-110"
+              aria-label="Scroll Right"
+            >
+              <span className="material-symbols-outlined text-3xl">chevron_right</span>
+            </button>
+          )}
+
+          <div 
+            ref={scrollContainerRef}
+            className="overflow-x-auto pb-8 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <div className="flex items-center gap-0 min-w-max px-4">
+            {completedTestsArray.map(([testId, testData], index) => {
+              const testInfo = getTestInfo(testId)
+              
+              return (
+                <React.Fragment key={testId}>
+                  {/* Test Card Container */}
+                  <div className="relative flex flex-col items-center" style={{ width: '340px' }}>
+                    {/* Completion Badge */}
+                    <div className="mb-4 flex items-center justify-center size-12 rounded-full border-4 bg-green-500 border-green-300 dark:border-green-700 z-10 shadow-lg">
+                      <span className="material-symbols-outlined text-white text-xl">check_circle</span>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold leading-tight text-slate-900 dark:text-white">
-                        {testInfo.title}
-                      </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        {formatDate(testData.completedAt)}
-                      </p>
+
+                    {/* Card */}
+                    <div className="w-full relative">
+                      <div
+                        className={`group relative overflow-hidden rounded-xl border-2 ${testInfo.borderColor} ${testInfo.bgColor} backdrop-blur-sm transition-all hover:shadow-xl hover:scale-[1.02]`}
+                      >
+                        <div className="p-6">
+                          {/* Icon & Title */}
+                          <div className="flex items-start gap-4 mb-4">
+                            <div className={`flex size-12 items-center justify-center rounded-lg ${testInfo.iconBg} text-white flex-shrink-0 shadow-md`}>
+                              <span className="material-symbols-outlined">{testInfo.icon}</span>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-lg font-bold leading-tight text-slate-900 dark:text-white">
+                                {testInfo.title}
+                              </h3>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>schedule</span>
+                                {formatDate(testData.completedAt)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Results Preview */}
+                          {testId === 'disc-insight' && renderDISCResults(testData.results)}
+                          {testId === 'anamnese-inicial' && renderAnamneseHighlights(testData.data)}
+                          {testId === 'inteligen-finder' && renderInteligenHighlights(testData.data)}
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                            <button
+                              onClick={() => handleViewResults(testId)}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                              <span className="material-symbols-outlined text-base">visibility</span>
+                              <span>Ver Detalhes</span>
+                            </button>
+                            <button
+                              onClick={() => handleClearResults(testId)}
+                              className="flex items-center justify-center p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              title="Limpar resultados"
+                            >
+                              <span className="material-symbols-outlined text-base">delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Connection Dots on Card Border */}
+                      {index > 0 && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-green-500 border-2 border-green-300 dark:border-green-700 z-20 shadow-md"></div>
+                      )}
+                      {index < completedTestsArray.length - 1 && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 rounded-full bg-green-500 border-2 border-green-300 dark:border-green-700 z-20 shadow-md"></div>
+                      )}
+                    </div>
+
+                    {/* Completion Date Label */}
+                    <div className="mt-3 flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                      <span className="material-symbols-outlined text-sm animate-pulse">verified</span>
+                      <span className="text-xs font-semibold">Completado com Sucesso</span>
                     </div>
                   </div>
 
-                  {/* Results Preview */}
-                  {testId === 'disc-insight' && renderDISCResults(testData.results)}
-                  {testId === 'anamnese-inicial' && renderAnamneseHighlights(testData.data)}
-                  {testId === 'inteligen-finder' && renderInteligenHighlights(testData.data)}
+                  {/* Connection Line Between Cards */}
+                  {index < completedTestsArray.length - 1 && (
+                    <div className="flex items-center justify-center relative" style={{ width: '70px', height: '450px' }}>
+                      <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1.5 flex items-center">
+                        {/* Animated Progress Line */}
+                        <div className="flex-1 h-1.5 bg-gradient-to-r from-green-500 via-green-400 to-green-500 rounded-full shadow-lg relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-pulse"></div>
+                          {/* Shimmer effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_ease-in-out_infinite]"></div>
+                        </div>
+                        
+                        {/* Arrow Head */}
+                        <div className="ml-0.5 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[12px] border-l-green-400 drop-shadow-md"></div>
+                      </div>
+                      
+                      {/* Flowing Dots along the path */}
+                      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-md animate-pulse"></div>
+                      <div className="absolute top-1/2 left-2/4 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-md animate-pulse" style={{ animationDelay: '0.15s' }}></div>
+                      <div className="absolute top-1/2 left-3/4 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-md animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                    </div>
+                  )}
+                </React.Fragment>
+              )
+            })}
+            </div>
+          </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <button
-                      onClick={() => handleViewResults(testId)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded-lg text-sm font-semibold transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-base">visibility</span>
-                      <span>Ver Detalhes</span>
-                    </button>
-                    <button
-                      onClick={() => handleClearResults(testId)}
-                      className="flex items-center justify-center p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                      title="Limpar resultados"
-                    >
-                      <span className="material-symbols-outlined text-base">delete</span>
-                    </button>
-                  </div>
+          {/* Achievement Summary */}
+          <div className="mt-10 text-center">
+            <div className="inline-flex flex-col items-center gap-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl px-8 py-6 shadow-xl border border-green-200 dark:border-green-800">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-green-500 text-4xl">emoji_events</span>
+                <div className="text-left">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">Conquista Desbloqueada</p>
+                  <p className="text-xl font-bold text-slate-900 dark:text-white">
+                    {completedTestsArray.length} {completedTestsArray.length === 1 ? 'Teste Concluído' : 'Testes Concluídos'}
+                  </p>
                 </div>
               </div>
-            )
-          })}
+              <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                <span className="material-symbols-outlined text-base">info</span>
+                <span>Continue sua jornada de autoconhecimento acima</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Hint */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
+            <span className="material-symbols-outlined text-base">info</span>
+            Use as setas para navegar entre os resultados
+          </p>
         </div>
       </div>
     </section>
