@@ -38,6 +38,15 @@ const TemplatesSection = () => {
       badgeColor: 'yellow',
       formUrl: '/forms/riasec',
       testId: 'riasec'
+    },
+    {
+      icon: 'stars',
+      category: 'Personalidade',
+      title: 'Arquétipos de Jung',
+      description: 'Descubra seus arquétipos dominantes baseado na teoria de Carl Jung. 12 arquétipos universais avaliados.',
+      badgeColor: 'green',
+      formUrl: '/forms/archetypes',
+      testId: 'archetypes'
     }
   ]
 

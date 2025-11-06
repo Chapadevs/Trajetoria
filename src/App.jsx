@@ -5,6 +5,7 @@ import AnamneseInicialForm from './pages/AnamneseInicialForm'
 import DiscPersonalityTest from './pages/DiscPersonalityTest'
 import MultipleIntelligencesTest from './pages/MultipleIntelligencesTest'
 import RiasecTest from './pages/RiasecTest'
+import ArchetypesTest from './pages/ArchetypesTest'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/forms/disc-personality" element={<DiscPersonalityTest />} />
         <Route path="/forms/multiple-intelligences" element={<MultipleIntelligencesTest />} />
         <Route path="/forms/riasec" element={<RiasecTest />} />
+        <Route path="/forms/archetypes" element={<ArchetypesTest />} />
       </Routes>
     </Router>
   )

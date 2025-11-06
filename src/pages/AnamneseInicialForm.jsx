@@ -41,6 +41,8 @@ const AnamneseInicialForm = () => {
     saveResults 
   } = useTestResults('anamnese-inicial')
   
+  const [hasStarted, setHasStarted] = useState(false)
+  
   const [formData, setFormData] = useState({
     // Seção 1: Identificação e Contexto Pessoal
     nomeCompleto: '',
@@ -296,6 +298,104 @@ const AnamneseInicialForm = () => {
     3: 'Experiências Profissionais',
     4: 'Interesses',
     5: 'Reflexões sobre Trajetória'
+  }
+
+  // Tela de introdução antes de iniciar o formulário
+  if (!hasStarted) {
+    return (
+      <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+        <div className="mx-auto w-full max-w-4xl px-4 py-12">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 md:p-12">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary mb-6">
+                <span className="material-symbols-outlined text-white text-4xl">person</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
+                Anamnese Inicial
+              </h1>
+              <p className="text-lg text-slate-600 dark:text-slate-400">
+                "Quem é você hoje?"
+              </p>
+            </div>
+
+            {/* Conteúdo */}
+            <div className="space-y-6 mb-8">
+              <div className="bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 rounded-xl p-6 border border-primary/20">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                  Por que este formulário é importante?
+                </h2>
+                <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                  A Anamnese Inicial é o primeiro passo da sua jornada de autoconhecimento. Este formulário coleta informações essenciais sobre você, sua formação, experiências e aspirações. Essas informações nos ajudarão a personalizar sua experiência e fornecer insights mais relevantes nos próximos testes.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { icon: 'badge', title: 'Identificação', desc: 'Dados pessoais básicos' },
+                  { icon: 'school', title: 'Escolaridade', desc: 'Sua formação acadêmica' },
+                  { icon: 'work', title: 'Experiência', desc: 'Seu histórico profissional' },
+                  { icon: 'favorite', title: 'Interesses', desc: 'Áreas que despertam seu interesse' },
+                  { icon: 'psychology', title: 'Reflexões', desc: 'Seus pontos fortes e desafios' },
+                  { icon: 'flag', title: 'Objetivos', desc: 'Suas metas e expectativas' }
+                ].map((item, idx) => (
+                  <div key={idx} className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-primary text-2xl">{item.icon}</span>
+                      <div>
+                        <h3 className="font-bold text-slate-900 dark:text-white">{item.title}</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">{item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                <h3 className="font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-blue-600">info</span>
+                  Informações sobre o formulário
+                </h3>
+                <ul className="space-y-2 text-slate-700 dark:text-slate-300">
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
+                    <span><strong>Duração:</strong> Aproximadamente 15-20 minutos</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
+                    <span><strong>Seções:</strong> 5 seções divididas por tema</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
+                    <span><strong>Privacidade:</strong> Seus dados são confidenciais e seguros</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
+                    <span>Você pode salvar seu progresso e voltar depois</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Botões */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => navigate('/')}
+                className="px-6 py-3 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                Voltar
+              </button>
+              <button
+                onClick={() => setHasStarted(true)}
+                className="px-8 py-3 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold hover:shadow-lg transform hover:scale-105 transition-all"
+              >
+                Começar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
