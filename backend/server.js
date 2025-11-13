@@ -59,5 +59,6 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   console.log(`📄 Acesse http://localhost:${PORT}/health para verificar o status`);
+  console.log(`🔑 OpenAI API Key configurada: ${process.env.OPENAI_API_KEY ? 'Sim' : 'Não'}`);
 });
 
