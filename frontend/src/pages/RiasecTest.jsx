@@ -14,6 +14,7 @@ import { saveDraft } from '../utils/storageUtils'
 
 const RiasecTest = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   
   // Hooks customizados
   const { 
@@ -52,8 +53,7 @@ const RiasecTest = () => {
         { replace: true }
       )
     }
-  }, [location.search, setShowResultsModal, navigate])
-  const location = useLocation()
+  }, [location.search, location.pathname, setShowResultsModal, navigate])
   
   const [formData, setFormData] = useState({
     q1: '', q2: '', q3: '', q4: '', q5: '',
