@@ -327,24 +327,6 @@ const ReportDownloadSection = () => {
                 </div>
               )}
               
-              <div className="p-4 bg-gradient-to-r from-[#C8A1FF]/10 to-[#9266CC]/10 dark:bg-slate-900/50 rounded-lg border border-[#9266CC]/20">
-                <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[#6152BD] text-lg">info</span>
-                  <div className="flex-1">
-                    {allTestsCompleted ? (
-                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        ✅ Todos os testes completados! O relatório será gerado em tempo real com base nos dados salvos no seu navegador.
-                        Nenhuma informação é enviada para servidores externos permanentemente.
-                      </p>
-                    ) : (
-                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Complete TODOS os {totalTests} testes acima para desbloquear o download do relatório.
-                        Seus resultados são salvos automaticamente e você terá acesso a um PDF completo e profissional.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
