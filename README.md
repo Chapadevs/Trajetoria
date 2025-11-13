@@ -185,11 +185,3 @@ Google Cloud Run Free Tier:
 
 All rights reserved © 2024 Trajetória
 
-## 🆘 Suporte
-
-- 📧 Email: suporte@trajetoria.com
-- 📚 Docs: [DEPLOY-SETUP.md](DEPLOY-SETUP.md)
-- 🐛 Issues: GitHub Issues
-
----
-
