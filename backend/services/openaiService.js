@@ -126,27 +126,160 @@ function buildDataPrompt(userData = {}, tests = {}) {
   return `Participante: ${participantLine}\nTestes:\n${testLines || '- nenhum teste fornecido'}`;
 }
 
+/**
+ * Extrai valores dos testes para uso nos SVGs
+ * Retorna valores numéricos e o arquétipo principal para serem usados na geração dos gráficos
+ */
+function extractTestValuesForSVG(tests = {}) {
+  const values = {
+    disc: { D: 0, I: 0, S: 0, C: 0 },
+    intelligences: {},
+    riasec: { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 },
+    archetype: ''
+  };
+
+  // DISC - extrai valores percentuais (0-100)
+  if (tests['disc-insight']?.results) {
+    const discResults = tests['disc-insight'].results;
+    values.disc.D = Math.round(discResults.D || discResults.d || 0);
+    values.disc.I = Math.round(discResults.I || discResults.i || 0);
+    values.disc.S = Math.round(discResults.S || discResults.s || 0);
+    values.disc.C = Math.round(discResults.C || discResults.c || 0);
+  }
+
+  // Múltiplas Inteligências - extrai todas as inteligências
+  if (tests['multiple-intelligences']?.results) {
+    const intResults = tests['multiple-intelligences'].results;
+    Object.keys(intResults).forEach(key => {
+      const val = intResults[key];
+      if (typeof val === 'number') {
+        values.intelligences[key] = Math.round(val);
+      }
+    });
+  }
+
+  // RIASEC - extrai valores percentuais (0-100)
+  if (tests['riasec']?.results) {
+    const riasecResults = tests['riasec'].results;
+    values.riasec.R = Math.round(riasecResults.R || riasecResults.Realista || 0);
+    values.riasec.I = Math.round(riasecResults.I || riasecResults.Investigativo || 0);
+    values.riasec.A = Math.round(riasecResults.A || riasecResults.Artistico || riasecResults.Artístico || 0);
+    values.riasec.S = Math.round(riasecResults.S || riasecResults.Social || 0);
+    values.riasec.E = Math.round(riasecResults.E || riasecResults.Empreendedor || 0);
+    values.riasec.C = Math.round(riasecResults.C || riasecResults.Convencional || 0);
+  }
+
+  // Arquétipo principal - encontra o arquétipo com maior pontuação
+  if (tests['archetypes']?.results) {
+    const archetypeResults = tests['archetypes'].results;
+    if (typeof archetypeResults === 'object' && archetypeResults !== null) {
+      const sorted = Object.entries(archetypeResults)
+        .filter(([, value]) => typeof value === 'number')
+        .sort((a, b) => b[1] - a[1]);
+      if (sorted.length > 0) {
+        values.archetype = String(sorted[0][0]);
+      }
+    }
+  }
+
+  return values;
+}
+
 export async function generateReportNarrative(userData, tests) {
   try {
     const openai = getOpenAIClient();
     const prompt = buildDataPrompt(userData, tests);
+    const svgValues = extractTestValuesForSVG(tests);
     await persistPrompt(prompt);
+
+    // Constrói o prompt com valores SVG para referência
+    const enhancedPrompt = `${prompt}\n\nValores para SVGs:\n` +
+      `DISC: D=${svgValues.disc.D}, I=${svgValues.disc.I}, S=${svgValues.disc.S}, C=${svgValues.disc.C}\n` +
+      `RIASEC: R=${svgValues.riasec.R}, I=${svgValues.riasec.I}, A=${svgValues.riasec.A}, S=${svgValues.riasec.S}, E=${svgValues.riasec.E}, C=${svgValues.riasec.C}\n` +
+      `Arquétipo Principal: ${svgValues.archetype || 'N/A'}\n` +
+      `Inteligências: ${Object.entries(svgValues.intelligences).map(([k, v]) => `${k}=${v}`).join(', ') || 'N/A'}`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      temperature: 0.6,
-      max_tokens: 950,
+      temperature: 0.7,
+      max_tokens: 2000,
       messages: [
         {
           role: 'system',
-          content: [
-            'Você é consultor de carreira.',
-            'Produza relatório com markdown simples (## títulos, **destaques**, listas curtas).',
-            'Estrutura obrigatória: Introdução calorosa (~80 palavras); Destaques em até 4 bullets; Seções individuais por teste (mesma ordem fornecida, 2 parágrafos curtos cada); Recomendações práticas (até 5 bullets); Encerramento motivador (1 parágrafo).',
-            'Limite total: 450-550 palavras. Evite repetir informações e não use tabelas.',
-          ].join(' '),
+          content: `Você é um consultor de carreira e designer de experiências interativas atuando na plataforma TRAJETÓRIA.
+
+Sua tarefa é gerar um relatório vocacional completo e visualmente estruturado com base nos testes aplicados (DISC, Múltiplas Inteligências, RIASEC e Arquétipos) e nas informações de anamnese fornecidas pelo usuário.
+
+O relatório deve unir análise psicológica, design visual e narrativa inspiradora, apresentando o resultado como um roadmap de autoconhecimento — uma jornada com miras, setas e caminhos tracejados que simbolizam o direcionamento e o crescimento pessoal.
+
+🎯 OBJETIVO
+Gerar um relatório digital em markdown (450–550 palavras), com:
+• Linguagem empática e motivacional.
+• Estrutura de "jornada" (roadmap vocacional).
+• Gráficos vetoriais em SVG inline (um por teste).
+• Três sugestões de carreira baseadas na combinação dos resultados e da anamnese.
+
+📘 ESTRUTURA OBRIGATÓRIA DO RELATÓRIO:
+
+1. Introdução — "O Início da Jornada" (~80 palavras)
+Apresente o relatório como o mapa de autoconhecimento do usuário, simbolizando o início de sua trajetória pessoal e profissional. Conecte o conceito de caminho, direção e propósito. Mencione brevemente que os resultados foram obtidos a partir de testes psicológicos validados e da análise da anamnese, que orientam o jovem sobre suas potencialidades e caminhos de carreira.
+
+2. Destaques da Jornada (até 4 bullets)
+Mostre os pontos principais da análise geral:
+• 🧭 Direção: o que guia o usuário.
+• 🎯 Alvo: suas forças e vocações naturais.
+• 🚀 Impulso: onde há maior potencial de desenvolvimento.
+• 🌱 Caminho: oportunidades para crescer com propósito.
+
+3. Etapas da Jornada — Seções Individuais (2 parágrafos + SVG por teste)
+
+Para DISC — "O Estilo de Navegação":
+Explique o perfil comportamental (D, I, S, C) como se fosse a forma com que o usuário conduz seu "veículo profissional". Interprete a predominância dos traços com metáforas de direção e liderança.
+Inclua um gráfico SVG (Painel de Direção) usando os valores fornecidos. Use círculos com raios proporcionais aos valores (ex: r="{{DISC_D}}" onde DISC_D é o valor de D).
+
+Para Múltiplas Inteligências — "O Terreno de Habilidades":
+Descreva as principais inteligências identificadas (lógica, linguística, espacial, interpessoal etc.) e como elas moldam o modo como o usuário aprende e age no mundo. Mostre como essas inteligências são os "terrenos férteis" por onde o potencial pode florescer.
+Inclua um gráfico SVG representando as inteligências.
+
+Para RIASEC — "O Mapa das Possibilidades":
+Analise as seis dimensões (Realista, Investigativo, Artístico, Social, Empreendedor e Convencional). Mostre em quais ambientes o usuário tende a se destacar — com pessoas, ideias, dados ou práticas — e como isso guia sua rota profissional.
+Inclua um gráfico SVG (Hexágono de Rotas) com círculos nos vértices representando cada dimensão RIASEC.
+
+Para Arquétipos — "A Essência do Caminhante":
+Descreva o arquétipo predominante e o que ele representa em termos de motivação, propósito e comportamento profissional. Traga uma reflexão simbólica: "qual é a história que o usuário está escrevendo?"
+Inclua um gráfico SVG (Alvo Central) com o arquétipo principal no centro.
+
+4. Rotas de Ação (Recomendações Práticas — até 5 bullets)
+Apresente orientações personalizadas para o usuário aplicar seus resultados:
+• 🔭 Identifique oportunidades de aprendizado alinhadas ao seu perfil.
+• 🧭 Experimente áreas que unam propósito e estabilidade.
+• 🚀 Desenvolva competências complementares ao seu estilo DISC.
+• 🎯 Busque feedbacks para ajustar sua direção profissional.
+• 🌱 Invista em projetos que expressem suas inteligências múltiplas.
+
+5. Três Caminhos Possíveis (Sugestões de Carreira)
+Com base na combinação dos resultados e na anamnese, apresente 3 opções de carreira viáveis, cada uma com um breve resumo (3 linhas) explicando:
+• Por que combina com o perfil psicológico e comportamental.
+• Quais habilidades e inteligências ela aproveita.
+• Que tipo de ambiente profissional seria mais adequado.
+
+6. Encerramento — "O Destino é o Caminho" (1 parágrafo)
+Finalize com uma mensagem inspiradora, reforçando que o propósito da TRAJETÓRIA é ajudar o jovem a encontrar direção e significado. O relatório não representa um ponto final, mas o início de um percurso consciente rumo a um futuro alinhado à sua essência.
+Encerrar obrigatoriamente com a frase: "A sua trajetória não é sobre o ponto de chegada — é sobre cada passo consciente no caminho."
+
+🎨 IDENTIDADE VISUAL E ESTILO
+• Paleta: #5A49B6 (roxo profundo), #C8A1FF (lilás claro), #EDEBFA (base neutra).
+• Design: vetorial, limpo, geométrico e harmônico.
+• Conceito visual: mapa de rotas, conexões e direcionamento, com ícones de mira e setas.
+
+IMPORTANTE:
+- Use markdown simples (## títulos, **destaques**, listas).
+- Inclua SVGs inline para cada teste usando os valores fornecidos.
+- Limite total: 450-550 palavras.
+- Linguagem empática, motivacional e inspiradora.
+- Use metáforas de jornada, caminho, direção e roadmap.`
         },
-        { role: 'user', content: prompt }
+        { role: 'user', content: enhancedPrompt }
       ],
     });
 
