@@ -1404,7 +1404,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
             ⭐ Seus 3 Arquétipos Dominantes
           </h4>
-          {top3.map((arch, idx) => renderArchetypeCard(arch, idx, true))}
+          {top3.map((arch, idx) => renderArchetypeCard(arch, idx, false))}
         </div>
 
         {remaining.length > 0 && (
@@ -1435,9 +1435,9 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-3xl max-h-[95vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-primary to-secondary p-6 text-white">
+        <div className="flex-shrink-0 bg-gradient-to-r from-primary to-secondary p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">{getTestTitle()}</h2>
@@ -1457,17 +1457,19 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-          {testId === 'disc-insight' && renderDISCResults(testData?.results)}
-          {testId === 'anamnese-inicial' && renderAnamneseResults(testData?.data)}
-          {testId === 'inteligen-finder' && renderInteligenResults(testData?.data)}
-          {testId === 'multiple-intelligences' && renderMultipleIntelligencesResults(testData?.results)}
-          {testId === 'riasec' && renderRiasecResults(testData?.results)}
-          {testId === 'archetypes' && renderArchetypesResults(testData?.results)}
+        <div className="flex-1 overflow-y-auto px-6 py-8 pb-12">
+          <div className="space-y-6">
+            {testId === 'disc-insight' && renderDISCResults(testData?.results)}
+            {testId === 'anamnese-inicial' && renderAnamneseResults(testData?.data)}
+            {testId === 'inteligen-finder' && renderInteligenResults(testData?.data)}
+            {testId === 'multiple-intelligences' && renderMultipleIntelligencesResults(testData?.results)}
+            {testId === 'riasec' && renderRiasecResults(testData?.results)}
+            {testId === 'archetypes' && renderArchetypesResults(testData?.results)}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between">
+        <div className="flex-shrink-0 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between">
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Seus dados estão salvos localmente no navegador
           </p>

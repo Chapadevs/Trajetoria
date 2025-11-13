@@ -1,8 +1,11 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import logo from '../../assets/logo.png'
+import { useTheme } from '../../hooks/useTheme'
 
 const SiteHeader = () => {
+  const { isDark, toggleTheme } = useTheme()
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#9266CC]/30 bg-[#6152BD]/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -24,6 +27,18 @@ const SiteHeader = () => {
           >
             Sobre
           </NavLink>
+          
+          {/* Botão de Toggle de Tema */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#6152BD]"
+            aria-label={isDark ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
+            title={isDark ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
+          >
+            <span className="material-symbols-outlined text-white text-xl">
+              {isDark ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
         </nav>
       </div>
     </header>
