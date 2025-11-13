@@ -12,7 +12,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-central1
-  SERVICE_NAME: trajetoria-647906054947
+  SERVICE_NAME: trajetoria
 
 jobs:
   deploy:
