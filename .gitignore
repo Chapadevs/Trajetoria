@@ -32,3 +32,9 @@ Thumbs.db
 dist/
 build/
 
+# Large media files
+*.mp4
+*.mov
+*.avi
+frontend/src/assets/1106.mp4
+

@@ -1,22 +1,21 @@
 import React from 'react'
-import heroVideo from '../../../assets/1106.mp4'
+import heroImage from '../../../assets/capa site.jpg'
 
 const HeroIntroSection = () => {
   return (
     <section className="relative w-full py-20 lg:py-32 overflow-hidden">
-      {/* Background Video with Blur */}
-      <video 
-        autoPlay
-        loop
-        muted
-        playsInline
+      {/* Background Image with Blur */}
+      <img 
+        src={heroImage}
+        alt="Trajetória - Descubra o seu caminho"
         className="absolute inset-0 z-0 w-full h-full object-cover"
         style={{
           filter: 'blur(3px)',
         }}
-      >
-        <source src={heroVideo} type="video/mp4" />
-      </video>
+      />
+      
+      {/* Overlay para melhorar legibilidade do texto */}
+      <div className="absolute inset-0 z-0 bg-black/40"></div>
       
       {/* Content */}
       <div className="relative z-10 container mx-auto flex max-w-7xl flex-col items-center gap-10 px-4 text-center sm:px-6 lg:px-8">
