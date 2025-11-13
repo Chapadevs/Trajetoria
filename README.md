@@ -193,4 +193,3 @@ All rights reserved © 2024 Trajetória
 
 ---
 
-**Desenvolvido com ❤️ para auxiliar no seu crescimento profissional e pessoal**
