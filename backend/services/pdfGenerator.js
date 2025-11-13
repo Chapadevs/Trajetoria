@@ -4,7 +4,7 @@ import { getColors, addPageHeader, addSection, addFooter } from '../utils/pdfSty
 /**
  * Gera um PDF completo com todos os resultados dos testes
  */
-export async function generateCompletePDF(userData, tests, roadmap) {
+export async function generateCompletePDF(userData, tests, roadmap, completeNarrative = null) {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ 
@@ -71,6 +71,13 @@ export async function generateCompletePDF(userData, tests, roadmap) {
         doc.addPage();
         addPageHeader(doc, 'Plano de Vida Personalizado', colors);
         addRoadmapSection(doc, roadmap, colors);
+      }
+
+      // ============ RELATÓRIO COMPLETO COM ESTRUTURA DE JORNADA ============
+      if (completeNarrative) {
+        doc.addPage();
+        addPageHeader(doc, 'Relatório Vocacional Completo', colors);
+        addCompleteNarrativeSection(doc, completeNarrative, colors);
       }
 
       // ============ PÁGINA FINAL: CONCLUSÃO ============
@@ -549,5 +556,97 @@ function addRoadmapSection(doc, roadmap, colors) {
        .list(roadmap.support, { bulletRadius: 2 })
        .moveDown(1.5);
   }
+}
+
+/**
+ * Adiciona a seção do relatório completo com estrutura de jornada
+ */
+function addCompleteNarrativeSection(doc, narrative, colors) {
+  if (!narrative) return;
+
+  // Processa o markdown e renderiza no PDF
+  const lines = narrative.split('\n');
+  let currentY = doc.y;
+
+  lines.forEach((line) => {
+    // Verifica se precisa de nova página
+    if (currentY > doc.page.height - 100) {
+      doc.addPage();
+      currentY = 60;
+    }
+
+    const trimmedLine = line.trim();
+
+    // Títulos (##)
+    if (trimmedLine.startsWith('## ')) {
+      const title = trimmedLine.substring(3).trim();
+      addSection(doc, title, colors);
+      currentY = doc.y;
+    }
+    // Subtítulos (###)
+    else if (trimmedLine.startsWith('### ')) {
+      const subtitle = trimmedLine.substring(4).trim();
+      doc.fontSize(13)
+         .fillColor(colors.secondary)
+         .text(subtitle, { underline: true })
+         .moveDown(0.8);
+      currentY = doc.y;
+    }
+    // Listas com bullets
+    else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+      const item = trimmedLine.substring(2).trim();
+      // Remove emojis para o PDF
+      const cleanItem = item.replace(/[🧭🎯🚀🌱🔭]/g, '').trim();
+      doc.fontSize(11)
+         .fillColor(colors.text)
+         .text(`• ${cleanItem}`, { indent: 20 })
+         .moveDown(0.5);
+      currentY = doc.y;
+    }
+    // Listas numeradas
+    else if (/^\d+\.\s/.test(trimmedLine)) {
+      const item = trimmedLine.replace(/^\d+\.\s/, '').trim();
+      doc.fontSize(11)
+         .fillColor(colors.text)
+         .text(item, { indent: 20 })
+         .moveDown(0.5);
+      currentY = doc.y;
+    }
+    // Texto em negrito (**texto**)
+    else if (trimmedLine.includes('**')) {
+      const parts = trimmedLine.split(/(\*\*[^*]+\*\*)/g);
+      doc.fontSize(11)
+         .fillColor(colors.text);
+      
+      parts.forEach((part) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          const boldText = part.slice(2, -2);
+          doc.font('Helvetica-Bold')
+             .text(boldText, { continued: true });
+        } else if (part.trim()) {
+          doc.font('Helvetica')
+             .text(part, { continued: true });
+        }
+      });
+      
+      doc.moveDown(0.8);
+      currentY = doc.y;
+    }
+    // Parágrafos normais
+    else if (trimmedLine && !trimmedLine.startsWith('<') && !trimmedLine.startsWith('</')) {
+      // Ignora tags HTML/SVG e linhas vazias
+      if (!trimmedLine.match(/^<[^>]+>$/) && trimmedLine.length > 0) {
+        // Remove qualquer tag SVG/HTML que possa estar no texto
+        const cleanText = trimmedLine.replace(/<[^>]*>/g, '').trim();
+        if (cleanText) {
+          doc.fontSize(11)
+             .fillColor(colors.text)
+             .text(cleanText, { align: 'justify', lineGap: 3 })
+             .moveDown(0.6);
+          currentY = doc.y;
+        }
+      }
+    }
+  });
 }
 

@@ -13,8 +13,23 @@ const AssessmentJourneySection = () => {
 
   useEffect(() => {
     // Carrega os testes concluídos do localStorage
-    const tests = JSON.parse(localStorage.getItem('completedTests') || '{}')
-    setCompletedTests(tests)
+    const updateTests = () => {
+      const tests = JSON.parse(localStorage.getItem('completedTests') || '{}')
+      setCompletedTests(tests)
+    }
+    
+    updateTests()
+    
+    // Adiciona listener para mudanças no storage
+    window.addEventListener('storage', updateTests)
+    
+    // Atualiza a cada 1 segundo (para detectar mudanças na mesma aba)
+    const interval = setInterval(updateTests, 1000)
+    
+    return () => {
+      window.removeEventListener('storage', updateTests)
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
@@ -123,6 +138,17 @@ const AssessmentJourneySection = () => {
     return !!completedTests[testId]
   }
 
+  const requiredTests = [
+    'anamnese-inicial',
+    'disc-insight',
+    'multiple-intelligences',
+    'riasec',
+    'archetypes'
+  ]
+
+  const completedCount = requiredTests.filter(testId => completedTests[testId]).length
+  const allTestsCompleted = completedCount === requiredTests.length
+
   return (
     <>
       <section id="testes" className="w-full bg-slate-50 dark:bg-slate-900/50 py-20 lg:py-24">
@@ -172,10 +198,10 @@ const AssessmentJourneySection = () => {
                 {/* Card Container */}
                 <div className="relative flex flex-col items-center" style={{ width: '320px' }}>
                   {/* Step Number Badge */}
-                  <div className={`mb-4 flex items-center justify-center size-10 rounded-full border-4 ${
+                  <div className={`mb-4 flex items-center justify-center size-10 rounded-full ${
                     isTestCompleted(template.testId)
-                      ? 'bg-purple-500 border-purple-300 dark:border-purple-700'
-                      : 'bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600'
+                      ? 'bg-purple-500'
+                      : 'bg-slate-200 dark:bg-slate-700'
                   } z-10 transition-all duration-300 shadow-md`}>
                     {isTestCompleted(template.testId) ? (
                       <span className="material-symbols-outlined text-white text-lg">check</span>
@@ -227,22 +253,42 @@ const AssessmentJourneySection = () => {
             </div>
           </div>
 
-          {/* Progress Indicator */}
-          <div className="mt-10 flex justify-center px-4">
-            <div className="flex w-full max-w-md items-center gap-6 rounded-full border border-slate-100/60 bg-white/90 px-8 py-5 shadow-[0_20px_60px_-25px_rgba(65,50,136,0.55)] backdrop-blur dark:border-slate-700/40 dark:bg-slate-800/80 dark:shadow-[0_20px_60px_-25px_rgba(146,102,204,0.55)]">
-              <div className="flex flex-col">
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Progresso da Jornada</p>
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {Object.keys(completedTests).length} de {formTemplates.length} avaliações concluídas
-                </p>
-              </div>
+          {/* Progress Button */}
+          <div className="mt-10 flex flex-col items-center justify-center px-4 gap-3">
+            <div className="text-center">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Progresso da Jornada</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                {completedCount} de {requiredTests.length} avaliações concluídas
+                {allTestsCompleted && <span className="ml-2 text-[#6152BD] dark:text-[#C8A1FF]">✓ Completo!</span>}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const reportSection = document.getElementById('report-download-section')
+                if (reportSection) {
+                  reportSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              }}
+              className={`flex w-full max-w-md items-center gap-6 rounded-full border px-8 py-5 shadow-[0_20px_60px_-25px_rgba(65,50,136,0.55)] backdrop-blur transition-all hover:shadow-[0_25px_70px_-20px_rgba(65,50,136,0.65)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
+                allTestsCompleted
+                  ? 'border-[#9266CC]/60 bg-gradient-to-r from-[#413288]/10 via-[#6152BD]/10 to-[#9266CC]/10 dark:border-[#9266CC]/40 dark:bg-slate-800/80 dark:shadow-[0_20px_60px_-25px_rgba(146,102,204,0.55)]'
+                  : 'border-slate-100/60 bg-white/90 dark:border-slate-700/40 dark:bg-slate-800/80'
+              }`}
+            >
               <div className="flex h-3 flex-1 items-center rounded-full bg-[#E5E1FF] dark:bg-slate-700/70 p-[2px]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#C8A1FF] transition-all duration-500"
-                  style={{ width: `${(Object.keys(completedTests).length / formTemplates.length) * 100}%` }}
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    allTestsCompleted
+                      ? 'bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#C8A1FF]'
+                      : 'bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#C8A1FF]'
+                  }`}
+                  style={{ width: `${(completedCount / requiredTests.length) * 100}%` }}
                 ></div>
               </div>
-            </div>
+              <span className={`material-symbols-outlined ${allTestsCompleted ? 'text-[#6152BD] dark:text-[#C8A1FF]' : 'text-slate-400 dark:text-slate-500'}`}>
+                {allTestsCompleted ? 'check_circle' : 'arrow_forward'}
+              </span>
+            </button>
           </div>
         </div>
 

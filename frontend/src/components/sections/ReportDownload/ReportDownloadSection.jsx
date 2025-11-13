@@ -148,40 +148,40 @@ const ReportDownloadSection = () => {
   }
 
   return (
-    <section className="w-full bg-gradient-to-br from-[#9266CC]/5 to-[#6152BD]/5 dark:from-[#9266CC]/10 dark:to-[#6152BD]/10 py-12 lg:py-16">
+    <section id="report-download-section" className="w-full bg-gradient-to-br from-[#9266CC]/5 to-[#6152BD]/5 dark:from-[#9266CC]/10 dark:to-[#6152BD]/10 py-12 lg:py-16">
       <div className="container mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
         
-        {!allTestsCompleted && (
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400 rounded-full text-sm font-semibold">
-              <span className="material-symbols-outlined text-base">pending_actions</span>
-              <div className="flex items-center gap-2">
-                <span>Progresso: {completedCount}/{totalTests} testes</span>
-                <div className="w-20 h-2 bg-slate-300 dark:bg-slate-600 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-[#6152BD] to-[#9266CC] transition-all duration-500"
-                    style={{ width: `${(completedCount / totalTests) * 100}%` }}
-                  ></div>
-                </div>
+
+
+        <div className={`bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border-2 ${allTestsCompleted ? 'border-[#9266CC]/30' : 'border-slate-300 dark:border-slate-600'} overflow-hidden relative ${!allTestsCompleted ? 'opacity-75' : ''}`}>
+          {/* Lock Overlay */}
+          {!allTestsCompleted && (
+            <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
+              <div className="text-center p-8">
+                <span className="material-symbols-outlined text-6xl text-slate-400 dark:text-slate-500 mb-4">lock</span>
+                <p className="text-lg font-semibold text-slate-600 dark:text-slate-400 mb-2">
+                  Complete todas as {totalTests} etapas para desbloquear
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-500">
+                  Progresso: {completedCount}/{totalTests} testes completados
+                </p>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border-2 border-[#9266CC]/30 overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#9266CC] p-6 lg:p-8 text-white">
+          <div className={`bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#9266CC] p-6 lg:p-8 text-white ${!allTestsCompleted ? 'opacity-60' : ''}`}>
             <div className="flex items-center justify-center gap-3 mb-2">
-              <span className="material-symbols-outlined text-4xl lg:text-5xl">description</span>
+              <span className="material-symbols-outlined text-4xl lg:text-5xl">{allTestsCompleted ? 'description' : 'lock'}</span>
               <h2 className="text-2xl lg:text-3xl font-bold">Relatório Completo</h2>
             </div>
             <p className="text-center text-white/90 text-sm lg:text-base">
-              Baixe um PDF profissional com todos os seus resultados
+              {allTestsCompleted ? 'Baixe um PDF profissional com todos os seus resultados' : 'Complete todas as etapas para desbloquear o relatório'}
             </p>
           </div>
 
           {/* Content */}
-          <div className="p-8">
+          <div className={`p-8 ${!allTestsCompleted ? 'pointer-events-none' : ''}`}>
             {/* Backend Status Warning */}
             {!backendOnline && (
               <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-lg">

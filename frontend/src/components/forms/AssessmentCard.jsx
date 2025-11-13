@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { TestIconInline } from '../../utils/testIcons'
 
 const AssessmentCard = ({ icon, category, title, description, badge, badgeColor, formUrl, testId, onViewResults }) => {
   const [isCompleted, setIsCompleted] = useState(false)
@@ -7,8 +8,10 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
   useEffect(() => {
     // Verifica se o teste foi concluído
     const completedTests = JSON.parse(localStorage.getItem('completedTests') || '{}')
-    if (testId && completedTests[testId]?.completed) {
+    if (testId && completedTests[testId]) {
       setIsCompleted(true)
+    } else {
+      setIsCompleted(false)
     }
   }, [testId])
 
@@ -28,36 +31,42 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
           : 'border-slate-200 bg-white dark:bg-slate-900/40 dark:border-slate-700'
         }`}
     >
-      <div className="p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div
-              className={`flex size-12 items-center justify-center rounded-2xl shadow-sm ${
-                isCompleted ? 'bg-[#6152BD] text-white' : 'bg-primary/10 text-primary'
-              }`}
-            >
+      <div className="p-6 flex flex-col items-center text-center">
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className={`relative flex size-12 items-center justify-center rounded-2xl shadow-sm ${
+              isCompleted ? 'bg-[#6152BD] text-white' : 'bg-primary/10 text-primary'
+            }`}
+          >
+            {isCompleted && testId ? (
+              <TestIconInline 
+                testId={testId} 
+                className="brightness-0 invert absolute inset-0 m-auto"
+                size={46}
+              />
+            ) : (
               <span className="material-symbols-outlined">
-                {isCompleted ? 'check' : icon}
+                {icon}
               </span>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] uppercase tracking-wide">
-                {category}
-              </p>
-              <h3 className="mt-1 text-lg font-black leading-tight text-slate-900 dark:text-white">
-                {title}
-              </h3>
-            </div>
+            )}
+          </div>
+          <div className="flex flex-col items-center">
+            <p className="text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] uppercase tracking-wide">
+              {category}
+            </p>
+            <h3 className="mt-1 text-lg font-black leading-tight text-slate-900 dark:text-white">
+              {title}
+            </h3>
           </div>
         </div>
 
-        <p className="mt-5 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+        <p className="mt-5 text-sm leading-relaxed text-slate-600 dark:text-slate-300 text-center">
           {description}
         </p>
       </div>
 
       <div
-        className={`mt-auto flex items-center justify-between gap-3 px-6 py-4 border-t ${
+        className={`mt-auto flex items-center justify-center gap-3 px-6 py-4 border-t ${
           isCompleted
             ? 'border-[#C8A1FF]/50 bg-[#F8F4FF] dark:bg-[#1d1538]'
             : 'border-slate-200 bg-slate-50 dark:bg-slate-800/40 dark:border-slate-700/60'
@@ -69,7 +78,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
             onClick={handleViewResultsClick}
             className="flex items-center gap-2 text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] hover:text-[#413288] dark:hover:text-white transition-colors"
           >
-            <span className="truncate">Ver Resultados</span>
+            <span>Ver Resultados</span>
             <span className="material-symbols-outlined text-base">chevron_right</span>
           </button>
         ) : (
@@ -77,7 +86,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
             to={formUrl || '#'}
             className="flex items-center gap-2 text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] hover:text-[#413288] dark:hover:text-white transition-colors"
           >
-            <span className="truncate">Iniciar Teste</span>
+            <span>Iniciar Teste</span>
             <span className="material-symbols-outlined text-base">chevron_right</span>
           </Link>
         )}

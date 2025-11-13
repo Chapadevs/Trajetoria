@@ -189,8 +189,49 @@ export async function generateReportNarrative(userData, tests) {
   try {
     const openai = getOpenAIClient();
     const prompt = buildDataPrompt(userData, tests);
-    const svgValues = extractTestValuesForSVG(tests);
     await persistPrompt(prompt);
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0.6,
+      max_tokens: 950,
+      messages: [
+        {
+          role: 'system',
+          content: [
+            'Você é consultor de carreira.',
+            'Produza relatório com markdown simples (## títulos, **destaques**, listas curtas).',
+            'Estrutura obrigatória: Introdução calorosa (~80 palavras); Destaques em até 4 bullets; Seções individuais por teste (mesma ordem fornecida, 2 parágrafos curtos cada); Recomendações práticas (até 5 bullets); Encerramento motivador (1 parágrafo).',
+            'Limite total: 450-550 palavras. Evite repetir informações e não use tabelas.',
+          ].join(' '),
+        },
+        { role: 'user', content: prompt }
+      ],
+    });
+
+    const message = completion.choices?.[0]?.message?.content;
+
+    if (!message) {
+      throw new Error('Resposta vazia do modelo OpenAI.');
+    }
+
+    return message;
+  } catch (error) {
+    console.error('Erro ao gerar narrativa com OpenAI:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gera relatório completo com estrutura de jornada para o PDF
+ * Esta função é usada apenas no PDF, não no relatório exibido na tela
+ */
+export async function generateCompleteReportNarrative(userData, tests) {
+  try {
+    const openai = getOpenAIClient();
+    const prompt = buildDataPrompt(userData, tests);
+    const svgValues = extractTestValuesForSVG(tests);
+    await persistPrompt(`COMPLETE REPORT FOR PDF\n${prompt}`);
 
     // Constrói o prompt com valores SVG para referência
     const enhancedPrompt = `${prompt}\n\nValores para SVGs:\n` +
@@ -216,7 +257,6 @@ O relatório deve unir análise psicológica, design visual e narrativa inspirad
 Gerar um relatório digital em markdown (450–550 palavras), com:
 • Linguagem empática e motivacional.
 • Estrutura de "jornada" (roadmap vocacional).
-• Gráficos vetoriais em SVG inline (um por teste).
 • Três sugestões de carreira baseadas na combinação dos resultados e da anamnese.
 
 📘 ESTRUTURA OBRIGATÓRIA DO RELATÓRIO:
@@ -231,23 +271,19 @@ Mostre os pontos principais da análise geral:
 • 🚀 Impulso: onde há maior potencial de desenvolvimento.
 • 🌱 Caminho: oportunidades para crescer com propósito.
 
-3. Etapas da Jornada — Seções Individuais (2 parágrafos + SVG por teste)
+3. Etapas da Jornada — Seções Individuais (2 parágrafos por teste)
 
 Para DISC — "O Estilo de Navegação":
 Explique o perfil comportamental (D, I, S, C) como se fosse a forma com que o usuário conduz seu "veículo profissional". Interprete a predominância dos traços com metáforas de direção e liderança.
-Inclua um gráfico SVG (Painel de Direção) usando os valores fornecidos. Use círculos com raios proporcionais aos valores (ex: r="{{DISC_D}}" onde DISC_D é o valor de D).
 
 Para Múltiplas Inteligências — "O Terreno de Habilidades":
 Descreva as principais inteligências identificadas (lógica, linguística, espacial, interpessoal etc.) e como elas moldam o modo como o usuário aprende e age no mundo. Mostre como essas inteligências são os "terrenos férteis" por onde o potencial pode florescer.
-Inclua um gráfico SVG representando as inteligências.
 
 Para RIASEC — "O Mapa das Possibilidades":
 Analise as seis dimensões (Realista, Investigativo, Artístico, Social, Empreendedor e Convencional). Mostre em quais ambientes o usuário tende a se destacar — com pessoas, ideias, dados ou práticas — e como isso guia sua rota profissional.
-Inclua um gráfico SVG (Hexágono de Rotas) com círculos nos vértices representando cada dimensão RIASEC.
 
 Para Arquétipos — "A Essência do Caminhante":
 Descreva o arquétipo predominante e o que ele representa em termos de motivação, propósito e comportamento profissional. Traga uma reflexão simbólica: "qual é a história que o usuário está escrevendo?"
-Inclua um gráfico SVG (Alvo Central) com o arquétipo principal no centro.
 
 4. Rotas de Ação (Recomendações Práticas — até 5 bullets)
 Apresente orientações personalizadas para o usuário aplicar seus resultados:
@@ -267,14 +303,9 @@ Com base na combinação dos resultados e na anamnese, apresente 3 opções de c
 Finalize com uma mensagem inspiradora, reforçando que o propósito da TRAJETÓRIA é ajudar o jovem a encontrar direção e significado. O relatório não representa um ponto final, mas o início de um percurso consciente rumo a um futuro alinhado à sua essência.
 Encerrar obrigatoriamente com a frase: "A sua trajetória não é sobre o ponto de chegada — é sobre cada passo consciente no caminho."
 
-🎨 IDENTIDADE VISUAL E ESTILO
-• Paleta: #5A49B6 (roxo profundo), #C8A1FF (lilás claro), #EDEBFA (base neutra).
-• Design: vetorial, limpo, geométrico e harmônico.
-• Conceito visual: mapa de rotas, conexões e direcionamento, com ícones de mira e setas.
-
 IMPORTANTE:
 - Use markdown simples (## títulos, **destaques**, listas).
-- Inclua SVGs inline para cada teste usando os valores fornecidos.
+- NÃO inclua SVGs ou código HTML no texto.
 - Limite total: 450-550 palavras.
 - Linguagem empática, motivacional e inspiradora.
 - Use metáforas de jornada, caminho, direção e roadmap.`
@@ -291,7 +322,7 @@ IMPORTANTE:
 
     return message;
   } catch (error) {
-    console.error('Erro ao gerar narrativa com OpenAI:', error);
+    console.error('Erro ao gerar relatório completo para PDF:', error);
     throw error;
   }
 }

@@ -1,6 +1,6 @@
 import express from 'express';
 import { generateCompletePDF } from '../services/pdfGenerator.js';
-import { generateReportNarrative, generateLifeRoadmap } from '../services/openaiService.js';
+import { generateReportNarrative, generateLifeRoadmap, generateCompleteReportNarrative } from '../services/openaiService.js';
 
 const router = express.Router();
 
@@ -30,7 +30,8 @@ router.post('/generate', async (req, res) => {
     }
 
     const roadmap = await generateLifeRoadmap(userData, tests);
-    const pdfBuffer = await generateCompletePDF(userData, tests, roadmap);
+    const completeNarrative = await generateCompleteReportNarrative(userData, tests);
+    const pdfBuffer = await generateCompletePDF(userData, tests, roadmap, completeNarrative);
     const narrative = await generateReportNarrative(userData, tests);
 
     // Retorna narrativa e PDF (Base64) para o frontend decidir como usar

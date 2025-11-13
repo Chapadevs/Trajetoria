@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { generateCompleteReport } from '../../../services/api'
 import AssessmentResultsModal from '../../modals/AssessmentResults/AssessmentResultsModal'
+import { TestIcon } from '../../../utils/testIcons'
 
 const CompletedAssessmentsSection = () => {
   const [completedTests, setCompletedTests] = useState({})
@@ -398,8 +399,11 @@ const CompletedAssessmentsSection = () => {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex size-12 items-center justify-center rounded-xl bg-[#6152BD]/10 text-[#6152BD] dark:bg-[#413288]/40 dark:text-[#C8A1FF]">
-                        <span className="material-symbols-outlined text-2xl">{testInfo.icon || 'check_circle'}</span>
+                      <div className="flex size-12 items-center justify-center rounded-xl bg-[#6152BD]/10 text-[#6152BD] dark:bg-[#413288]/40 dark:text-[#C8A1FF] overflow-hidden">
+                        <TestIcon 
+                          testId={testId} 
+                          className="w-8 h-8 object-contain"
+                        />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{testInfo.title}</h3>

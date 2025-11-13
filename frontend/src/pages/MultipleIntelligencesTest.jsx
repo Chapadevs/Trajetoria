@@ -348,7 +348,7 @@ const MultipleIntelligencesTest = () => {
               </button>
               <button
                 onClick={() => setHasStarted(true)}
-                className="px-8 py-3 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold hover:shadow-lg transform hover:scale-105 transition-all"
+                className="px-8 py-3 rounded-lg bg-[#6152BD] text-white font-bold hover:shadow-lg transform hover:scale-105 transition-all"
               >
                 Iniciar Teste
               </button>
