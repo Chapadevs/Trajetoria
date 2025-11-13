@@ -12,7 +12,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-central1
-  SERVICE_NAME: trajetoria-backend
+  SERVICE_NAME: trajetoria-647906054947
 
 jobs:
   deploy:
@@ -41,13 +41,13 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           cd backend
-          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/trajetoria/${{ env.SERVICE_NAME }}:${{ github.sha }} .
-          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/trajetoria/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/trajetoria/trajetoria-backend:${{ github.sha }} .
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/trajetoria/trajetoria-backend:${{ github.sha }}
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/trajetoria/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/trajetoria/trajetoria-backend:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
