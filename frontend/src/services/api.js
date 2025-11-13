@@ -2,11 +2,8 @@
  * Serviço de API para comunicação com o backend
  */
 
-// URL do backend: Cloud Run em produção, localhost em desenvolvimento
-const API_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD 
-    ? 'https://trajetoria-647906054947.us-central1.run.app'
-    : 'http://localhost:3001');
+// URL do backend: Cloud Run como padrão, pode ser sobrescrita via VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL || 'https://trajetoria-647906054947.us-central1.run.app';
 
 /**
  * Solicita ao backend a geração completa do relatório (narrativa + PDF)
