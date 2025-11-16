@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { generateCompleteReport } from '../../../services/api'
+import { composeWithConclusion } from '../../../utils/pdfUtils'
+import coverImageUrl from '../../../assets/capa relatorio.jpg'
 import AssessmentResultsModal from '../../modals/AssessmentResults/AssessmentResultsModal'
 import { TestIcon } from '../../../utils/testIcons'
 
@@ -148,8 +150,13 @@ const CompletedAssessmentsSection = () => {
 
       const result = await generateCompleteReport(userData, tests)
       const filename = result.filename || `relatorio-completo-${new Date().getTime()}.pdf`
-
-      downloadPdfFromBase64(result.pdfBase64, filename, result.mimeType)
+      const discResults = completedTests['disc-insight']?.results || {}
+      const miResults = completedTests['multiple-intelligences']?.results || {}
+      const riasecResults = completedTests['riasec']?.results || {}
+      const archetypesResults = completedTests['archetypes']?.results || {}
+      const narrativeText = result.narrative || ''
+      const composedBase64 = await composeWithConclusion(coverImageUrl, result.pdfBase64, userData, discResults, miResults, riasecResults, archetypesResults, narrativeText)
+      downloadPdfFromBase64(composedBase64, filename, result.mimeType || 'application/pdf')
     } catch (error) {
       console.error('Erro ao baixar relatório:', error)
       setDownloadError(error.message || 'Não foi possível gerar o PDF. Tente novamente.')

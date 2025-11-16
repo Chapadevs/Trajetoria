@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { generateCompleteReport, checkBackendHealth } from '../../../services/api'
+import { prependCoverAndSummary, composeWithCoverSummaryAnamnese, composeWithCoverSummaryAnamneseDisc, composeWithCoverSummaryAnamneseDiscMI, composeWithCoverSummaryAnamneseDiscMIRiasec, composeWithCoverSummaryAnamneseDiscMIRiasecArchetypes, composeWithHighlights, composeWithMoreHighlights, composeWithActionPlan, composeWithConclusion } from '../../../utils/pdfUtils'
+import coverImageUrl from '../../../assets/capa relatorio.jpg'
 
 const markdownComponents = {
   h2: ({ node, ...props }) => (
@@ -130,7 +132,14 @@ const ReportDownloadSection = () => {
       const result = await generateCompleteReport(userData, tests)
       const filename = result.filename || `relatorio-completo-${new Date().getTime()}.pdf`
 
-      downloadPdfFromBase64(result.pdfBase64, filename, result.mimeType)
+      // Compose PDF with cover + summary + anamnese + disc + MI + riasec + archetypes + highlights
+      const discResults = completedTests['disc-insight']?.results || {}
+      const miResults = completedTests['multiple-intelligences']?.results || {}
+      const riasecResults = completedTests['riasec']?.results || {}
+      const archetypesResults = completedTests['archetypes']?.results || {}
+      const narrativeText = result.narrative || ''
+      const composedBase64 = await composeWithConclusion(coverImageUrl, result.pdfBase64, userData, discResults, miResults, riasecResults, archetypesResults, narrativeText)
+      downloadPdfFromBase64(composedBase64, filename, result.mimeType || 'application/pdf')
 
       setReportData({
         ...result,
@@ -291,7 +300,31 @@ const ReportDownloadSection = () => {
                     )}
                     <button
                       type="button"
-                      onClick={() => downloadPdfFromBase64(reportData.pdfBase64, reportData.filename, reportData.mimeType)}
+                      onClick={async () => {
+                        // reconstruct userData from localStorage to ensure consistency
+                        const completedTests = JSON.parse(localStorage.getItem('completedTests') || '{}')
+                        const anamneseData = completedTests['anamnese-inicial']?.data || {}
+                        const userDataInline = {
+                          nomeCompleto: anamneseData.nomeCompleto || 'Não informado',
+                          idade: anamneseData.idade || '',
+                          cidadeEstado: anamneseData.cidadeEstado || '',
+                          email: anamneseData.email || '',
+                          nivelEscolaridade: anamneseData.nivelEscolaridade || '',
+                          areaEstudo: anamneseData.areaEstudo || '',
+                          situacaoProfissional: anamneseData.situacaoProfissional || '',
+                          ocupacaoAtual: anamneseData.ocupacaoAtual || '',
+                          areasInteresse: anamneseData.areasInteresse || [],
+                          objetivosCarreira: anamneseData.objetivosCarreira || []
+                        }
+                        const completedTests2 = JSON.parse(localStorage.getItem('completedTests') || '{}')
+                        const discInline = completedTests2['disc-insight']?.results || {}
+                        const miInline = completedTests2['multiple-intelligences']?.results || {}
+                        const riasecInline = completedTests2['riasec']?.results || {}
+                        const archInline = completedTests2['archetypes']?.results || {}
+                        const narrativeText = reportData.narrative || ''
+                        const composedBase64 = await composeWithConclusion(coverImageUrl, reportData.pdfBase64, userDataInline, discInline, miInline, riasecInline, archInline, narrativeText)
+                        downloadPdfFromBase64(composedBase64, reportData.filename, reportData.mimeType || 'application/pdf')
+                      }}
                       className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#9266CC] rounded-full shadow hover:shadow-lg transition-all"
                     >
                       <span className="material-symbols-outlined text-base">download</span>
