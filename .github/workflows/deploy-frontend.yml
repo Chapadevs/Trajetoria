@@ -41,7 +41,7 @@ jobs:
         working-directory: frontend
         env:
           NODE_ENV: production
-          VITE_API_URL: ${{ vars.BACKEND_URL || 'http://localhost:3001' }}
+          VITE_API_URL: ${{ vars.BACKEND_URL || 'https://api.suatrajetoria.com.br' }}
           VITE_BASE_PATH: '/'  # Use root path for custom domain
 
       - name: Copy CNAME file
