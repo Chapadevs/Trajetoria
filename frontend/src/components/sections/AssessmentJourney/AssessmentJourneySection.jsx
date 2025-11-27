@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import AssessmentCard from '../../forms/AssessmentCard'
 import AssessmentResultsModal from '../../modals/AssessmentResults/AssessmentResultsModal'
+import trajetoriaIcon from '../../../assets/icone-trajetoria.svg'
 
 const AssessmentJourneySection = () => {
   const [completedTests, setCompletedTests] = useState({})
@@ -100,7 +101,7 @@ const AssessmentJourneySection = () => {
       icon: 'feedback',
       category: 'Avaliação Comportamental',
       title: 'Disc Insight',
-      description: 'Ferramenta de avaliação de personalidade e padrões comportamentais para pesquisa psiquiátrica.',
+      description: 'Ferramenta de avaliação de personalidade e padrões comportamentais',
       badgeColor: 'yellow',
       formUrl: '/forms/disc-personality',
       testId: 'disc-insight'
@@ -148,6 +149,9 @@ const AssessmentJourneySection = () => {
 
   const completedCount = requiredTests.filter(testId => completedTests[testId]).length
   const allTestsCompleted = completedCount === requiredTests.length
+
+  // Próximo teste a ser preenchido (primeiro não concluído na ordem)
+  const nextTestId = formTemplates.find(template => !isTestCompleted(template.testId))?.testId || null
 
   return (
     <>
@@ -201,7 +205,9 @@ const AssessmentJourneySection = () => {
                   <div className={`mb-4 flex items-center justify-center size-10 rounded-full ${
                     isTestCompleted(template.testId)
                       ? 'bg-purple-500'
-                      : 'bg-slate-200 dark:bg-slate-700'
+                      : nextTestId === template.testId
+                        ? 'bg-slate-200 dark:bg-slate-700 border-2 border-[#C8A1FF]'
+                        : 'bg-slate-200 dark:bg-slate-700'
                   } z-10 transition-all duration-300 shadow-md`}>
                     {isTestCompleted(template.testId) ? (
                       <span className="material-symbols-outlined text-white text-lg">check</span>
@@ -214,6 +220,7 @@ const AssessmentJourneySection = () => {
                   <div className="w-full relative">
                     <AssessmentCard
                       {...template}
+                      isNext={nextTestId === template.testId}
                       onViewResults={(event) => handleViewResults(event, template.testId)}
                     />
                   </div>
@@ -269,12 +276,12 @@ const AssessmentJourneySection = () => {
                   reportSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
               }}
-              className={`flex w-full max-w-md items-center gap-6 rounded-full border px-8 py-5 shadow-[0_20px_60px_-25px_rgba(65,50,136,0.55)] backdrop-blur transition-all hover:shadow-[0_25px_70px_-20px_rgba(65,50,136,0.65)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
+              className={`flex w-full max-w-md items-center gap-4 rounded-full border px-8 py-4 shadow-[0_20px_60px_-25px_rgba(65,50,136,0.55)] backdrop-blur transition-all hover:shadow-[0_25px_70px_-20px_rgba(65,50,136,0.65)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
                 allTestsCompleted
                   ? 'border-[#9266CC]/60 bg-gradient-to-r from-[#413288]/10 via-[#6152BD]/10 to-[#9266CC]/10 dark:border-[#9266CC]/40 dark:bg-slate-800/80 dark:shadow-[0_20px_60px_-25px_rgba(146,102,204,0.55)]'
                   : 'border-slate-100/60 bg-white/90 dark:border-slate-700/40 dark:bg-slate-800/80'
               }`}
-            >
+              >
               <div className="flex h-3 flex-1 items-center rounded-full bg-[#E5E1FF] dark:bg-slate-700/70 p-[2px]">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
@@ -285,9 +292,13 @@ const AssessmentJourneySection = () => {
                   style={{ width: `${(completedCount / requiredTests.length) * 100}%` }}
                 ></div>
               </div>
-              <span className={`material-symbols-outlined ${allTestsCompleted ? 'text-[#6152BD] dark:text-[#C8A1FF]' : 'text-slate-400 dark:text-slate-500'}`}>
-                {allTestsCompleted ? 'check_circle' : 'arrow_forward'}
-              </span>
+              <img
+                src={trajetoriaIcon}
+                alt="Trajetória"
+                className={`h-10 w-10 transition-all ${
+                  allTestsCompleted ? '' : 'grayscale opacity-50'
+                }`}
+              />
             </button>
           </div>
         </div>

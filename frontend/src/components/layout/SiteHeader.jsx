@@ -25,7 +25,7 @@ const SiteHeader = () => {
               }`
             }
           >
-            Sobre
+            Sobre o Projeto
           </NavLink>
           
           {/* Botão de Toggle de Tema */}

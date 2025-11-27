@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { TestIconInline } from '../../utils/testIcons'
 
-const AssessmentCard = ({ icon, category, title, description, badge, badgeColor, formUrl, testId, onViewResults }) => {
+const AssessmentCard = ({ icon, category, title, description, badge, badgeColor, formUrl, testId, onViewResults, isNext = false }) => {
   const [isCompleted, setIsCompleted] = useState(false)
 
   useEffect(() => {
@@ -25,11 +25,15 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
 
   return (
     <div
-      className={`group flex min-h-[320px] max-w-[350px] flex-col overflow-hidden rounded-3xl border-2 transition-all shadow-[0_12px_30px_-15px_rgba(118,87,255,0.45)]
-        ${isCompleted
-          ? 'border-[#C8A1FF] bg-gradient-to-br from-white via-white to-[#f6f0ff] dark:from-[#201a3f] dark:via-[#1a1435] dark:to-[#211744]'
-          : 'border-slate-200 bg-white dark:bg-slate-900/40 dark:border-slate-700'
-        }`}
+      className={`group flex min-h-[320px] max-w-[350px] flex-col overflow-hidden rounded-3xl border-2 transition-all duration-300 shadow-[0_12px_30px_-15px_rgba(118,87,255,0.45)]
+        ${
+          isCompleted
+            ? 'border-[#C8A1FF] bg-gradient-to-br from-white via-white to-[#f6f0ff] dark:from-[#201a3f] dark:via-[#1a1435] dark:to-[#211744]'
+            : !isCompleted && isNext
+              ? 'border-[#C8A1FF] bg-white dark:bg-slate-900/40 dark:border-[#C8A1FF]'
+              : 'border-slate-200 bg-white dark:bg-slate-900/40 dark:border-slate-700'
+        }
+      `}
     >
       <div className="p-6 flex flex-col items-center text-center">
         <div className="flex flex-col items-center gap-4">
@@ -51,6 +55,12 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
             )}
           </div>
           <div className="flex flex-col items-center">
+            {!isCompleted && isNext && (
+              <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#413288] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-[#6152BD]">
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                Próximo teste
+              </span>
+            )}
             <p className="text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] uppercase tracking-wide">
               {category}
             </p>
@@ -84,9 +94,9 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
         ) : (
           <Link
             to={formUrl || '#'}
-            className="flex items-center gap-2 text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] hover:text-[#413288] dark:hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#6152BD] hover:bg-[#9266CC] transition-all shadow-md hover:shadow-lg"
           >
-            <span>Iniciar Teste</span>
+            <span>Iniciar</span>
             <span className="material-symbols-outlined text-base">chevron_right</span>
           </Link>
         )}

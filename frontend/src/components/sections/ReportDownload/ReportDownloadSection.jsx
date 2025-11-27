@@ -159,8 +159,11 @@ const ReportDownloadSection = () => {
   return (
     <section id="report-download-section" className="w-full bg-gradient-to-br from-[#9266CC]/5 to-[#6152BD]/5 dark:from-[#9266CC]/10 dark:to-[#6152BD]/10 py-12 lg:py-16">
       <div className="container mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-        
-
+        {!allTestsCompleted && (
+          <h3 className="mb-6 text-center text-base font-medium text-slate-700 dark:text-slate-300">
+            Complete todos os testes acima para gerar seu relatório personalizado
+          </h3>
+        )}
 
         <div className={`bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border-2 ${allTestsCompleted ? 'border-[#9266CC]/30' : 'border-slate-300 dark:border-slate-600'} overflow-hidden relative ${!allTestsCompleted ? 'opacity-75' : ''}`}>
           {/* Lock Overlay */}
@@ -217,27 +220,27 @@ const ReportDownloadSection = () => {
                 📋 O relatório {allTestsCompleted ? 'inclui' : 'incluirá'}:
               </h3>
               <div className="mx-auto grid w-full max-w-2xl grid-cols-1 justify-items-center gap-3 text-center md:grid-cols-2 md:gap-x-4">
-                <div className="flex w-full max-w-xs items-center justify-end gap-2 text-sm md:max-w-none">
+                <div className="flex w-full max-w-xs items-center justify-center md:justify-end gap-2 text-sm md:max-w-none">
                   <span className="text-slate-700 dark:text-slate-300">Anamnese Inicial completa</span>
                   <span className="material-symbols-outlined text-[#6152BD] text-lg">check_circle</span>
                 </div>
-                <div className="flex w-full max-w-xs items-center justify-start gap-2 text-sm md:max-w-none">
+                <div className="flex w-full max-w-xs items-center justify-center md:justify-start gap-2 text-sm md:max-w-none">
                   <span className="material-symbols-outlined text-[#6152BD] text-lg mt-0.5">check_circle</span>
                   <span className="text-slate-700 dark:text-slate-300">Análise DISC detalhada</span>
                 </div>
-                <div className="flex w-full max-w-xs items-center justify-end gap-2 text-sm md:max-w-none">
+                <div className="flex w-full max-w-xs items-center justify-center md:justify-end gap-2 text-sm md:max-w-none">
                   <span className="text-slate-700 dark:text-slate-300">Perfil de Inteligências Múltiplas</span>
                   <span className="material-symbols-outlined text-[#6152BD] text-lg">check_circle</span>
                 </div>
-                <div className="flex w-full max-w-xs items-center justify-start gap-2 text-sm md:max-w-none">
+                <div className="flex w-full max-w-xs items-center justify-center md:justify-start gap-2 text-sm md:max-w-none">
                   <span className="material-symbols-outlined text-[#6152BD] text-lg mt-0.5">check_circle</span>
                   <span className="text-slate-700 dark:text-slate-300">Código Holland (RIASEC)</span>
                 </div>
-                <div className="flex w-full max-w-xs items-center justify-end gap-2 text-sm md:max-w-none">
+                <div className="flex w-full max-w-xs items-center justify-center md:justify-end gap-2 text-sm md:max-w-none">
                   <span className="text-slate-700 dark:text-slate-300">Arquétipos de Personalidade</span>
                   <span className="material-symbols-outlined text-[#6152BD] text-lg">check_circle</span>
                 </div>
-                <div className="flex w-full max-w-xs items-center justify-start gap-2 text-sm md:max-w-none">
+                <div className="flex w-full max-w-xs items-center justify-center md:justify-start gap-2 text-sm md:max-w-none">
                   <span className="material-symbols-outlined text-[#6152BD] text-lg mt-0.5">check_circle</span>
                   <span className="text-slate-700 dark:text-slate-300">Recomendações personalizadas</span>
                 </div>

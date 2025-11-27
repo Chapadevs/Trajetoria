@@ -1,7 +1,7 @@
 import React from 'react'
 import SiteHeader from '../components/layout/SiteHeader'
 import SiteFooter from '../components/layout/SiteFooter'
-import heroBg from '../assets/hero-bg.jpg'
+import heroBg from '../assets/capa site.jpg'
 
 const SobrePage = () => {
   return (
@@ -118,6 +118,8 @@ const SobrePage = () => {
 }
 
 export default SobrePage
+
+
 
 
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import heroImage from '../../../assets/capa site.jpg'
+import heroImage from '../../../assets/hero-bg.jpg'
 
 const HeroIntroSection = () => {
   return (
