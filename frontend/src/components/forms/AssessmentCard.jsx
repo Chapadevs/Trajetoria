@@ -94,7 +94,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
         ) : (
           <Link
             to={formUrl || '#'}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#6152BD] hover:bg-[#9266CC] transition-all shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] hover:text-[#413288] dark:hover:text-white transition-colors"
           >
             <span>Iniciar</span>
             <span className="material-symbols-outlined text-base">chevron_right</span>
