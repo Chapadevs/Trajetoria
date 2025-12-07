@@ -158,13 +158,20 @@ const AssessmentJourneySection = () => {
       <section id="testes" className="w-full bg-slate-50 dark:bg-slate-900/50 py-20 lg:py-24">
       <div className="container mx-auto max-w-[95%] px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="mb-16 text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-            Sua Trajetória de Avaliação
-          </h2>
-          <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
-            Complete as seguintes avaliações em sequência como parte de sua participação em nosso estudo.
-          </p>
+        <div className="mb-16">
+          <div className="mx-auto max-w-3xl rounded-2xl bg-white/80 dark:bg-slate-800/80 border-2 border-[#6152BD]/20 shadow-lg p-8 sm:p-10 backdrop-blur-sm">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  SUA TRAJETÓRIA DE AVALIAÇÃO
+                </h2>
+                <div className="mt-4 h-1 w-16 mx-auto bg-[#6152BD] rounded-full"></div>
+              </div>
+              <p className="mt-6 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl">
+                Complete as seguintes avaliações em sequência como parte de sua participação em nosso estudo.
+              </p>
+            </div>
+          </div>
         </div>
         
         {/* Horizontal Journey Path */}
@@ -278,17 +285,13 @@ const AssessmentJourneySection = () => {
               }}
               className={`flex w-full max-w-md items-center gap-4 rounded-full border px-8 py-4 shadow-[0_20px_60px_-25px_rgba(65,50,136,0.55)] backdrop-blur transition-all hover:shadow-[0_25px_70px_-20px_rgba(65,50,136,0.65)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
                 allTestsCompleted
-                  ? 'border-[#9266CC]/60 bg-gradient-to-r from-[#413288]/10 via-[#6152BD]/10 to-[#9266CC]/10 dark:border-[#9266CC]/40 dark:bg-slate-800/80 dark:shadow-[0_20px_60px_-25px_rgba(146,102,204,0.55)]'
+                  ? 'border-[#9266CC]/60 bg-[#6152BD]/10 dark:border-[#9266CC]/40 dark:bg-slate-800/80 dark:shadow-[0_20px_60px_-25px_rgba(146,102,204,0.55)]'
                   : 'border-slate-100/60 bg-white/90 dark:border-slate-700/40 dark:bg-slate-800/80'
               }`}
               >
               <div className="flex h-3 flex-1 items-center rounded-full bg-[#E5E1FF] dark:bg-slate-700/70 p-[2px]">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    allTestsCompleted
-                      ? 'bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#C8A1FF]'
-                      : 'bg-gradient-to-r from-[#413288] via-[#6152BD] to-[#C8A1FF]'
-                  }`}
+                  className={`h-full rounded-full transition-all duration-500 bg-[#6152BD]`}
                   style={{ width: `${(completedCount / requiredTests.length) * 100}%` }}
                 ></div>
               </div>

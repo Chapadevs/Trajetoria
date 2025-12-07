@@ -314,7 +314,7 @@ const CompletedAssessmentsSection = () => {
 
   return (
     <>
-      <section className="w-full bg-gradient-to-br from-[#F5F2FF] via-[#F8F9FF] to-[#F5F2FF] dark:from-[#1E1B2D] dark:via-[#201F36] dark:to-[#1E1B2D] py-16 lg:py-20">
+      <section className="w-full bg-[#F5F2FF] dark:bg-[#1E1B2D] py-16 lg:py-20">
         <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-col items-center gap-4 text-center">
             <span className="material-symbols-outlined text-4xl text-[#6152BD]">task_alt</span>
@@ -377,7 +377,7 @@ const CompletedAssessmentsSection = () => {
                 type="button"
                 disabled={!allTestsCompleted || isDownloading}
                 onClick={handleDownloadReport}
-                className="group inline-flex items-center justify-center gap-2 self-center rounded-2xl bg-gradient-to-r from-[#6152BD] to-[#9266CC] px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all enabled:hover:scale-[1.02] enabled:hover:shadow-xl enabled:hover:from-[#5545AA] enabled:hover:to-[#7E5FE0] disabled:cursor-not-allowed disabled:opacity-60"
+                className="group inline-flex items-center justify-center gap-2 self-center rounded-2xl bg-[#6152BD] px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all enabled:hover:scale-[1.02] enabled:hover:shadow-xl enabled:hover:bg-[#5545AA] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="material-symbols-outlined text-lg">{isDownloading ? 'hourglass_top' : 'download'}</span>
                 {isDownloading ? 'Gerando relatório...' : 'Baixar relatório em PDF'}

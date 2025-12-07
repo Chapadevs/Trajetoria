@@ -71,9 +71,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+// Para Cloud Run, é necessário escutar em 0.0.0.0 (todas as interfaces)
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📄 Acesse http://localhost:${PORT}/health para verificar o status`);
+  console.log(`📄 Acesse http://0.0.0.0:${PORT}/health para verificar o status`);
   console.log(`🔑 OpenAI API Key configurada: ${process.env.OPENAI_API_KEY ? 'Sim' : 'Não'}`);
 });
 

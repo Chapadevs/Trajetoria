@@ -54,6 +54,17 @@ const DiscPersonalityTest = () => {
       )
     }
   }, [location.search, setShowResultsModal, navigate])
+
+  useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
+    if (hasStarted) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [hasStarted])
   
   const [formData, setFormData] = useState({
     q1: '', q2: '', q3: '', q4: '', q5: '',
@@ -218,7 +229,7 @@ const DiscPersonalityTest = () => {
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 md:p-12">
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#6152BD] mb-6">
                 <span className="material-symbols-outlined text-white text-4xl">psychology</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
@@ -231,7 +242,7 @@ const DiscPersonalityTest = () => {
 
             {/* Conteúdo */}
             <div className="space-y-6 mb-8">
-              <div className="bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 rounded-xl p-6 border border-primary/20">
+              <div className="bg-primary/10 dark:bg-primary/20 rounded-xl p-6 border border-primary/20">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
                   O que é o DISC?
                 </h2>

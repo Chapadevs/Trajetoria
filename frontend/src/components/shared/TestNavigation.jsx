@@ -17,16 +17,6 @@ export const TestNavigation = ({
 }) => {
   return (
     <div className="flex flex-col gap-4 px-4 py-6 mt-8 border-t border-slate-200 dark:border-slate-800">
-      {/* Progress Info */}
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          {completedSteps.length} de {totalSteps} etapas concluídas
-        </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Responda com sinceridade. Não há respostas certas ou erradas.
-        </p>
-      </div>
-
       {/* Navigation Buttons */}
       <div className="flex flex-col items-center gap-4">
         <div className="flex flex-wrap justify-center gap-4 w-full">
@@ -77,6 +67,16 @@ export const TestNavigation = ({
             <span className="truncate">Voltar</span>
           </button>
         )}
+      </div>
+
+      {/* Progress Info */}
+      <div className="flex items-center justify-between mt-6">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {completedSteps.length} de {totalSteps} etapas concluídas
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Responda com sinceridade. Não há respostas certas ou erradas.
+        </p>
       </div>
 
     </div>

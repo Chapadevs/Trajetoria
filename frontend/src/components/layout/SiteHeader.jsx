@@ -13,14 +13,14 @@ const SiteHeader = () => {
           to="/"
           className="flex items-center transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#6152BD]"
         >
-          <img src={logo} alt="Trajetória" className="w-52 pt-3" />
+          <img src={logo} alt="Trajetória" className="w-40 sm:w-52 pt-3" />
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3 sm:gap-6">
           <NavLink
             to="/sobre"
             className={({ isActive }) =>
-              `text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#6152BD] ${
+              `text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] sm:tracking-[0.3em] text-white transition hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#6152BD] ${
                 isActive ? 'text-white' : 'text-white/90'
               }`
             }

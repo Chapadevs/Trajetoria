@@ -28,7 +28,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
       className={`group flex min-h-[320px] max-w-[350px] flex-col overflow-hidden rounded-3xl border-2 transition-all duration-300 shadow-[0_12px_30px_-15px_rgba(118,87,255,0.45)]
         ${
           isCompleted
-            ? 'border-[#C8A1FF] bg-gradient-to-br from-white via-white to-[#f6f0ff] dark:from-[#201a3f] dark:via-[#1a1435] dark:to-[#211744]'
+            ? 'border-[#C8A1FF] bg-white dark:bg-[#201a3f]'
             : !isCompleted && isNext
               ? 'border-[#C8A1FF] bg-white dark:bg-slate-900/40 dark:border-[#C8A1FF]'
               : 'border-slate-200 bg-white dark:bg-slate-900/40 dark:border-slate-700'

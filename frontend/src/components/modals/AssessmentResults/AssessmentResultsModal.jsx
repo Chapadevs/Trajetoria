@@ -869,7 +869,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           key={profile.key}
           className={`rounded-xl border p-4 ${
             highlight
-              ? 'bg-gradient-to-br from-primary/15 to-secondary/15 dark:from-primary/25 dark:to-secondary/25 border-primary/40'
+              ? 'bg-primary/15 dark:bg-primary/25 border-primary/40'
               : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700'
           }`}
         >
@@ -1024,7 +1024,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           </div>
         )}
 
-        <div className="bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-xl p-4 border border-primary/20">
+        <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-4 border border-primary/20">
           <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">code</span>
             Seu Código Holland
@@ -1258,7 +1258,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
                 key={arch.key}
           className={`rounded-xl border p-4 ${
             highlight
-              ? 'bg-gradient-to-br from-primary/15 to-secondary/15 dark:from-primary/25 dark:to-secondary/25 border-primary/40'
+              ? 'bg-primary/15 dark:bg-primary/25 border-primary/40'
               : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700'
           }`}
         >
@@ -1437,7 +1437,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="relative w-full max-w-3xl max-h-[95vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex-shrink-0 bg-gradient-to-r from-primary to-secondary p-6 text-white">
+        <div className="flex-shrink-0 bg-[#6152BD] p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">{getTestTitle()}</h2>
