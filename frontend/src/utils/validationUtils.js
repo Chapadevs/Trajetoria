@@ -55,19 +55,14 @@ export const validateAge = (age, min = 14, max = 120) => {
 }
 
 /**
- * Cria mensagem de erro padrão
- * @param {string} fieldName - Nome do campo
- * @param {string} type - Tipo de erro
- * @returns {string} Mensagem de erro
- */
+* Cria mensagem de erro padrão (usando i18n)
+* @param {string} fieldName - Nome do campo
+* @param {string} type - Tipo de erro
+* @returns {string} Mensagem de erro
+*/
+import i18n from '../i18n'
+
 export const getErrorMessage = (fieldName, type = 'required') => {
-  const messages = {
-    required: `${fieldName} é obrigatório.`,
-    email: 'Por favor, insira um endereço de e-mail válido.',
-    phone: 'Por favor, insira um telefone válido.',
-    age: 'Por favor, insira uma idade válida.',
-    select: `Por favor, selecione uma opção para ${fieldName}.`
-  }
-  return messages[type] || messages.required
+  return i18n.t(`validation.${type}`, { fieldName })
 }
 

@@ -1,6 +1,9 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 const SiteFooter = () => {
+  const { t } = useTranslation()
+
   return (
     <footer className="w-full border-t border-slate-200 dark:border-slate-800">
       <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
@@ -16,7 +19,7 @@ const SiteFooter = () => {
             </svg>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            © 2025 Trajetória. Todos os direitos reservados.
+            {t('footer.copyright')}
           </p>
         </div>
         

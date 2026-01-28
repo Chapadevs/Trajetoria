@@ -12,10 +12,12 @@ import { useFormValidation } from '../hooks/useFormValidation'
 import { useTestResults } from '../hooks/useTestResults'
 import { validateRequired, getErrorMessage } from '../utils/validationUtils'
 import { saveDraft } from '../utils/storageUtils'
+import { useTranslation } from 'react-i18next'
 
 const AnamneseInicialForm = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
   
   // Hooks customizados
   const { 
@@ -112,42 +114,42 @@ const AnamneseInicialForm = () => {
     switch(step) {
       case 1: // Seção 1 - Identificação e Contexto Pessoal
         if (!validateRequired(formData.nomeCompleto)) {
-          newErrors.nomeCompleto = getErrorMessage('Nome completo')
+          newErrors.nomeCompleto = getErrorMessage(t('tests.anamnese.fields.nomeCompleto.label'))
         }
         if (!validateRequired(formData.idade)) {
-          newErrors.idade = getErrorMessage('Idade')
+          newErrors.idade = getErrorMessage(t('tests.anamnese.fields.idade.label'))
         }
         if (!validateRequired(formData.cidadeEstado)) {
-          newErrors.cidadeEstado = getErrorMessage('Cidade/Estado')
+          newErrors.cidadeEstado = getErrorMessage(t('tests.anamnese.fields.cidadeEstado.label'))
         }
         if (!validateRequired(formData.email)) {
-          newErrors.email = getErrorMessage('E-mail')
+          newErrors.email = getErrorMessage(t('tests.anamnese.fields.email.label'))
         } else if (!validateEmail(formData.email)) {
           newErrors.email = getErrorMessage('email', 'email')
         }
         if (!validateRequired(formData.telefone)) {
-          newErrors.telefone = getErrorMessage('Telefone')
+          newErrors.telefone = getErrorMessage(t('tests.anamnese.fields.telefone.label'))
         }
         break
 
       case 2: // Seção 2 - Escolaridade
         if (!formData.nivelEscolaridade) {
-          newErrors.nivelEscolaridade = 'Por favor, selecione seu nível de escolaridade.'
+          newErrors.nivelEscolaridade = t('tests.anamnese.errors.nivelEscolaridade')
         }
         if (!formData.estudandoAtualmente) {
-          newErrors.estudandoAtualmente = 'Por favor, indique se está estudando atualmente.'
+          newErrors.estudandoAtualmente = t('tests.anamnese.errors.estudandoAtualmente')
         }
         break
 
       case 3: // Seção 3 - Experiências Profissionais
         if (!formData.situacaoProfissional) {
-          newErrors.situacaoProfissional = 'Por favor, selecione sua situação profissional.'
+          newErrors.situacaoProfissional = t('tests.anamnese.errors.situacaoProfissional')
         }
         break
 
       case 4: // Seção 4 - Interesses
         if (formData.areasInteresse.length === 0) {
-          newErrors.areasInteresse = 'Por favor, selecione pelo menos uma área de interesse.'
+          newErrors.areasInteresse = t('tests.anamnese.errors.areasInteresse')
         }
         break
 
@@ -236,82 +238,22 @@ const AnamneseInicialForm = () => {
   }
 
   // Opções para os campos
-  const nivelEscolaridadeOptions = [
-    'Ensino Fundamental',
-    'Ensino Médio',
-    'Ensino Técnico',
-    'Ensino Superior (Cursando)',
-    'Ensino Superior (Completo)',
-    'Pós-graduação/Mestrado/Doutorado'
-  ]
-
-  const simNaoOptions = ['Sim', 'Não']
-
-  const situacaoProfissionalOptions = [
-    'Empregado(a)',
-    'Desempregado(a)',
-    'Autônomo(a)',
-    'Apenas estudante',
-    'Em busca do primeiro emprego'
-  ]
-
-  const tempoTrabalhoOptions = [
-    'Não estou trabalhando',
-    'Menos de 1 ano',
-    '1 a 3 anos',
-    '3 a 5 anos',
-    'Mais de 5 anos'
-  ]
-
-  const satisfacaoTrabalhoOptions = [
-    'Muito satisfeito(a)',
-    'Satisfeito(a)',
-    'Neutro',
-    'Insatisfeito(a)',
-    'Não se aplica / Não estou trabalhando'
-  ]
-
-  const areasInteresseOptions = [
-    'Tecnologia e Inovação',
-    'Saúde e Bem-estar',
-    'Educação',
-    'Comunicação e Marketing',
-    'Administração e Gestão',
-    'Artes e Design',
-    'Engenharia',
-    'Ciências Humanas',
-    'Ciências Exatas',
-    'Empreendedorismo',
-    'Meio Ambiente',
-    'Direito e Jurídico'
-  ]
-
-  const ambienteTrabalhoOptions = [
-    'Escritório presencial',
-    'Híbrido (presencial e remoto)',
-    'Totalmente remoto',
-    'Trabalho de campo/externo',
-    'Indiferente'
-  ]
-
-  const objetivosCarreiraOptions = [
-    'Estabilidade financeira',
-    'Crescimento profissional',
-    'Trabalhar com o que amo',
-    'Flexibilidade de horário',
-    'Reconhecimento profissional',
-    'Fazer diferença na sociedade',
-    'Ter meu próprio negócio',
-    'Trabalhar remotamente'
-  ]
+  const nivelEscolaridadeOptions = t('tests.anamnese.fields.nivelEscolaridade.options', { returnObjects: true })
+  const simNaoOptions = t('tests.anamnese.fields.estudandoAtualmente.options', { returnObjects: true })
+  const situacaoProfissionalOptions = t('tests.anamnese.fields.situacaoProfissional.options', { returnObjects: true })
+  const tempoTrabalhoOptions = t('tests.anamnese.fields.tempoTrabalho.options', { returnObjects: true })
+  const satisfacaoTrabalhoOptions = t('tests.anamnese.fields.satisfacaoTrabalho.options', { returnObjects: true })
+  const areasInteresseOptions = t('tests.anamnese.fields.areasInteresse.options', { returnObjects: true })
+  const ambienteTrabalhoOptions = t('tests.anamnese.fields.ambienteTrabalho.options', { returnObjects: true })
+  const objetivosCarreiraOptions = t('tests.anamnese.fields.objetivosCarreira.options', { returnObjects: true })
 
   // Títulos das etapas
   const stepTitles = {
-    1: 'Identificação e Contexto Pessoal',
-    2: 'Escolaridade',
-    3: 'Experiências Profissionais',
-    4: 'Interesses',
-    5: 'Reflexões sobre Trajetória'
+    1: t('tests.anamnese.steps.1'),
+    2: t('tests.anamnese.steps.2'),
+    3: t('tests.anamnese.steps.3'),
+    4: t('tests.anamnese.steps.4'),
+    5: t('tests.anamnese.steps.5'),
   }
 
   // Tela de introdução antes de iniciar o formulário
@@ -326,10 +268,10 @@ const AnamneseInicialForm = () => {
                 <span className="material-symbols-outlined text-white text-4xl">person</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
-                Anamnese Inicial
+                {t('tests.anamnese.intro.title')}
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-400">
-                "Quem é você hoje?"
+                {t('tests.anamnese.intro.subtitle')}
               </p>
             </div>
 
@@ -337,21 +279,21 @@ const AnamneseInicialForm = () => {
             <div className="space-y-6 mb-8">
               <div className="bg-primary/10 dark:bg-primary/20 rounded-xl p-6 border border-primary/20">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                  Por que este formulário é importante?
+                  {t('tests.anamnese.intro.whyTitle')}
                 </h2>
                 <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                  A Anamnese Inicial é o primeiro passo da sua jornada de autoconhecimento. Este formulário coleta informações essenciais sobre você, sua formação, experiências e aspirações. Essas informações nos ajudarão a personalizar sua experiência e fornecer insights mais relevantes nos próximos testes.
+                  {t('tests.anamnese.intro.whyText')}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { icon: 'badge', title: 'Identificação', desc: 'Dados pessoais básicos' },
-                  { icon: 'school', title: 'Escolaridade', desc: 'Sua formação acadêmica' },
-                  { icon: 'work', title: 'Experiência', desc: 'Seu histórico profissional' },
-                  { icon: 'favorite', title: 'Interesses', desc: 'Áreas que despertam seu interesse' },
-                  { icon: 'psychology', title: 'Reflexões', desc: 'Seus pontos fortes e desafios' },
-                  { icon: 'flag', title: 'Objetivos', desc: 'Suas metas e expectativas' }
+                  { icon: 'badge', ...t('tests.anamnese.intro.tiles.0', { returnObjects: true }) },
+                  { icon: 'school', ...t('tests.anamnese.intro.tiles.1', { returnObjects: true }) },
+                  { icon: 'work', ...t('tests.anamnese.intro.tiles.2', { returnObjects: true }) },
+                  { icon: 'favorite', ...t('tests.anamnese.intro.tiles.3', { returnObjects: true }) },
+                  { icon: 'psychology', ...t('tests.anamnese.intro.tiles.4', { returnObjects: true }) },
+                  { icon: 'flag', ...t('tests.anamnese.intro.tiles.5', { returnObjects: true }) },
                 ].map((item, idx) => (
                   <div key={idx} className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
                     <div className="flex items-start gap-3">
@@ -368,24 +310,24 @@ const AnamneseInicialForm = () => {
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
                 <h3 className="font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                   <span className="material-symbols-outlined text-blue-600">info</span>
-                  Informações sobre o formulário
+                  {t('tests.anamnese.intro.infoTitle')}
                 </h3>
                 <ul className="space-y-2 text-slate-700 dark:text-slate-300">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Duração:</strong> Aproximadamente 15-20 minutos</span>
+                    <span><strong>{t('tests.anamnese.intro.duration')}</strong> {t('tests.anamnese.intro.durationText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Seções:</strong> 5 seções divididas por tema</span>
+                    <span><strong>{t('tests.anamnese.intro.sections')}</strong> {t('tests.anamnese.intro.sectionsText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Privacidade:</strong> Seus dados são confidenciais e seguros</span>
+                    <span><strong>{t('tests.anamnese.intro.privacy')}</strong> {t('tests.anamnese.intro.privacyText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span>Você pode salvar seu progresso e voltar depois</span>
+                    <span>{t('tests.anamnese.intro.saveText')}</span>
                   </li>
                 </ul>
               </div>
@@ -397,13 +339,13 @@ const AnamneseInicialForm = () => {
                 onClick={() => navigate('/')}
                 className="px-6 py-3 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
-                Voltar
+                {t('tests.anamnese.intro.backButton')}
               </button>
               <button
                 onClick={() => setHasStarted(true)}
                 className="px-8 py-3 rounded-lg bg-[#6152BD] text-white font-bold hover:shadow-lg transform hover:scale-105 transition-all"
               >
-                Começar
+                {t('tests.anamnese.intro.startButton')}
               </button>
             </div>
           </div>
@@ -416,9 +358,9 @@ const AnamneseInicialForm = () => {
     <FormLayout currentStep={currentStep} totalSteps={5} progress={progress}>
       {/* Header */}
       <TestHeader
-        testNumber="Teste 1"
-        title='Anamnese Inicial: "Quem é você hoje?"'
-        objective="Coletar dados básicos e contextuais sobre você, permitindo uma leitura mais personalizada dos demais testes e dos relatórios gerados pela plataforma."
+        testNumber={t('tests.anamnese.header.testNumber')}
+        title={t('tests.anamnese.header.title')}
+        objective={t('tests.anamnese.header.objective')}
         currentStep={currentStep}
         stepTitle={stepTitles[currentStep]}
         savedResults={savedResults}
@@ -438,21 +380,21 @@ const AnamneseInicialForm = () => {
       >
         {/* Etapa 1: Identificação e Contexto Pessoal */}
         {currentStep === 1 && (
-        <FormSection title="Identificação e Contexto Pessoal">
+        <FormSection title={t('tests.anamnese.steps.1')}>
           <TextInput
-            label="Nome Completo"
+            label={t('tests.anamnese.fields.nomeCompleto.label')}
             id="nomeCompleto"
-            placeholder="Digite seu nome completo"
+            placeholder={t('tests.anamnese.fields.nomeCompleto.placeholder')}
             value={formData.nomeCompleto}
             onChange={handleInputChange}
             error={errors.nomeCompleto}
             required
           />
           <TextInput
-            label="Idade"
+            label={t('tests.anamnese.fields.idade.label')}
             id="idade"
             type="number"
-            placeholder="Digite sua idade"
+            placeholder={t('tests.anamnese.fields.idade.placeholder')}
             value={formData.idade}
             onChange={handleInputChange}
             error={errors.idade}
@@ -460,9 +402,9 @@ const AnamneseInicialForm = () => {
           />
           <FullWidthItem>
             <TextInput
-              label="Cidade/Estado"
+              label={t('tests.anamnese.fields.cidadeEstado.label')}
               id="cidadeEstado"
-              placeholder="Ex: São Paulo/SP"
+              placeholder={t('tests.anamnese.fields.cidadeEstado.placeholder')}
               value={formData.cidadeEstado}
               onChange={handleInputChange}
               error={errors.cidadeEstado}
@@ -470,20 +412,20 @@ const AnamneseInicialForm = () => {
             />
           </FullWidthItem>
           <TextInput
-            label="E-mail"
+            label={t('tests.anamnese.fields.email.label')}
             id="email"
             type="email"
-            placeholder="voce@exemplo.com"
+            placeholder={t('tests.anamnese.fields.email.placeholder')}
             value={formData.email}
             onChange={handleInputChange}
             error={errors.email}
             required
           />
           <TextInput
-            label="Telefone"
+            label={t('tests.anamnese.fields.telefone.label')}
             id="telefone"
             type="tel"
-            placeholder="(11) 98765-4321"
+            placeholder={t('tests.anamnese.fields.telefone.placeholder')}
             value={formData.telefone}
             onChange={handleInputChange}
             error={errors.telefone}
@@ -494,10 +436,10 @@ const AnamneseInicialForm = () => {
 
         {/* Etapa 2: Escolaridade */}
         {currentStep === 2 && (
-        <FormSection title="Qual seu nível de escolaridade?">
+        <FormSection title={t('tests.anamnese.fields.nivelEscolaridade.sectionTitle')}>
           <FullWidthItem>
             <RadioGroup
-              label="Nível de Escolaridade"
+              label={t('tests.anamnese.fields.nivelEscolaridade.label')}
               id="nivelEscolaridade"
               options={nivelEscolaridadeOptions}
               value={formData.nivelEscolaridade}
@@ -508,7 +450,7 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <RadioGroup
-              label="Está estudando atualmente?"
+              label={t('tests.anamnese.fields.estudandoAtualmente.label')}
               id="estudandoAtualmente"
               options={simNaoOptions}
               value={formData.estudandoAtualmente}
@@ -519,9 +461,9 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <TextArea
-              label="Qual área de estudo/formação?"
+              label={t('tests.anamnese.fields.areaEstudo.label')}
               id="areaEstudo"
-              placeholder="Descreva sua área de estudo ou formação..."
+              placeholder={t('tests.anamnese.fields.areaEstudo.placeholder')}
               value={formData.areaEstudo}
               onChange={handleInputChange}
               rows={3}
@@ -532,10 +474,10 @@ const AnamneseInicialForm = () => {
 
         {/* Etapa 3: Experiências no ramo profissional */}
         {currentStep === 3 && (
-        <FormSection title="Experiências no ramo profissional">
+        <FormSection title={t('tests.anamnese.fields.situacaoProfissional.sectionTitle')}>
           <FullWidthItem>
             <RadioGroup
-              label="Qual sua situação profissional atual?"
+              label={t('tests.anamnese.fields.situacaoProfissional.label')}
               id="situacaoProfissional"
               options={situacaoProfissionalOptions}
               value={formData.situacaoProfissional}
@@ -546,19 +488,19 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <SelectInput
-              label="Há quanto tempo trabalha ou já trabalhou?"
+              label={t('tests.anamnese.fields.tempoTrabalho.label')}
               id="tempoTrabalho"
               options={tempoTrabalhoOptions}
               value={formData.tempoTrabalho}
               onChange={handleInputChange}
-              placeholder="Selecione uma opção"
+              placeholder={t('tests.anamnese.fields.tempoTrabalho.placeholder')}
             />
           </FullWidthItem>
           <FullWidthItem>
             <TextArea
-              label="Se está trabalhando, qual sua ocupação/cargo atual?"
+              label={t('tests.anamnese.fields.ocupacaoAtual.label')}
               id="ocupacaoAtual"
-              placeholder="Descreva sua ocupação ou cargo atual..."
+              placeholder={t('tests.anamnese.fields.ocupacaoAtual.placeholder')}
               value={formData.ocupacaoAtual}
               onChange={handleInputChange}
               rows={3}
@@ -566,7 +508,7 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <RadioGroup
-              label="Como você avalia sua satisfação com o trabalho atual?"
+              label={t('tests.anamnese.fields.satisfacaoTrabalho.label')}
               id="satisfacaoTrabalho"
               options={satisfacaoTrabalhoOptions}
               value={formData.satisfacaoTrabalho}
@@ -578,10 +520,10 @@ const AnamneseInicialForm = () => {
 
         {/* Etapa 4: Interesses */}
         {currentStep === 4 && (
-        <FormSection title="Quais os seus interesses?">
+        <FormSection title={t('tests.anamnese.fields.areasInteresse.sectionTitle')}>
           <FullWidthItem>
             <MultiSelectCheckbox
-              label="Quais áreas profissionais despertam seu interesse?"
+              label={t('tests.anamnese.fields.areasInteresse.label')}
               id="areasInteresse"
               options={areasInteresseOptions}
               value={formData.areasInteresse}
@@ -593,7 +535,7 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <RadioGroup
-              label="Qual tipo de ambiente de trabalho prefere?"
+              label={t('tests.anamnese.fields.ambienteTrabalho.label')}
               id="ambienteTrabalho"
               options={ambienteTrabalhoOptions}
               value={formData.ambienteTrabalho}
@@ -602,7 +544,7 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <MultiSelectCheckbox
-              label="Quais são seus principais objetivos de carreira?"
+              label={t('tests.anamnese.fields.objetivosCarreira.label')}
               id="objetivosCarreira"
               options={objetivosCarreiraOptions}
               value={formData.objetivosCarreira}
@@ -615,12 +557,12 @@ const AnamneseInicialForm = () => {
 
         {/* Etapa 5: Reflexões sobre sua própria TRAJETÓRIA */}
         {currentStep === 5 && (
-        <FormSection title="Reflexões sobre sua própria TRAJETÓRIA">
+        <FormSection title={t('tests.anamnese.steps.5')}>
           <FullWidthItem>
             <TextArea
-              label="Quais você considera serem seus principais pontos fortes ou habilidades?"
+              label={t('tests.anamnese.fields.pontosFortesHabilidades.label')}
               id="pontosFortesHabilidades"
-              placeholder="Pense em características, talentos ou competências que você domina bem..."
+              placeholder={t('tests.anamnese.fields.pontosFortesHabilidades.placeholder')}
               value={formData.pontosFortesHabilidades}
               onChange={handleInputChange}
               rows={5}
@@ -628,9 +570,9 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <TextArea
-              label="Quais são seus principais desafios ou dificuldades na vida profissional?"
+              label={t('tests.anamnese.fields.desafiosDificuldades.label')}
               id="desafiosDificuldades"
-              placeholder="Seja honesto sobre o que você sente que precisa desenvolver ou superar..."
+              placeholder={t('tests.anamnese.fields.desafiosDificuldades.placeholder')}
               value={formData.desafiosDificuldades}
               onChange={handleInputChange}
               rows={5}
@@ -638,9 +580,9 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <TextArea
-              label="O que te motiva a buscar orientação profissional neste momento?"
+              label={t('tests.anamnese.fields.motivacaoOrientacao.label')}
               id="motivacaoOrientacao"
-              placeholder="Conte um pouco sobre o que te trouxe até aqui..."
+              placeholder={t('tests.anamnese.fields.motivacaoOrientacao.placeholder')}
               value={formData.motivacaoOrientacao}
               onChange={handleInputChange}
               rows={5}
@@ -648,9 +590,9 @@ const AnamneseInicialForm = () => {
           </FullWidthItem>
           <FullWidthItem>
             <TextArea
-              label="Quais são suas expectativas em relação a este processo de orientação?"
+              label={t('tests.anamnese.fields.expectativasProcesso.label')}
               id="expectativasProcesso"
-              placeholder="O que você espera conquistar ou descobrir..."
+              placeholder={t('tests.anamnese.fields.expectativasProcesso.placeholder')}
               value={formData.expectativasProcesso}
               onChange={handleInputChange}
               rows={5}

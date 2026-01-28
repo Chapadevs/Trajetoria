@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Componente TestNavigation - Navegação comum para todos os testes
@@ -15,6 +16,8 @@ export const TestNavigation = ({
   isFirstStep,
   stepTitles = {}
 }) => {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-4 px-4 py-6 mt-8 border-t border-slate-200 dark:border-slate-800">
       {/* Navigation Buttons */}
@@ -28,6 +31,7 @@ export const TestNavigation = ({
               onClick={onSaveDraft}
             >
               <span className="material-symbols-outlined text-base">save</span>
+              <span className="sr-only">{t('testNavigation.saveDraft')}</span>
             </button>
           )}
 
@@ -38,7 +42,7 @@ export const TestNavigation = ({
               type="button"
               onClick={onNext}
             >
-              <span className="truncate">Próxima Etapa</span>
+              <span className="truncate">{t('testNavigation.nextStep')}</span>
               <span className="material-symbols-outlined ml-2 text-base">arrow_forward</span>
             </button>
           ) : (
@@ -51,7 +55,7 @@ export const TestNavigation = ({
               type="submit"
             >
               <span className="material-symbols-outlined mr-2 text-base">send</span>
-              <span className="truncate">Enviar Teste</span>
+              <span className="truncate">{t('testNavigation.submitTest')}</span>
             </button>
           )}
         </div>
@@ -64,7 +68,7 @@ export const TestNavigation = ({
             onClick={onPrevious}
           >
             <span className="material-symbols-outlined mr-2 text-base">arrow_back</span>
-            <span className="truncate">Voltar</span>
+            <span className="truncate">{t('testNavigation.back')}</span>
           </button>
         )}
       </div>
@@ -72,10 +76,10 @@ export const TestNavigation = ({
       {/* Progress Info */}
       <div className="flex items-center justify-between mt-6">
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          {completedSteps.length} de {totalSteps} etapas concluídas
+          {t('testNavigation.progressLabel', { completed: completedSteps.length, total: totalSteps })}
         </p>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Responda com sinceridade. Não há respostas certas ou erradas.
+          {t('testNavigation.honestyHint')}
         </p>
       </div>
 

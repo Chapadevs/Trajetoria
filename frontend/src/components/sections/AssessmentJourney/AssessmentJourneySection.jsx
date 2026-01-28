@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import AssessmentCard from '../../forms/AssessmentCard'
 import AssessmentResultsModal from '../../modals/AssessmentResults/AssessmentResultsModal'
 import trajetoriaIcon from '../../../assets/icone-trajetoria.svg'
 
 const AssessmentJourneySection = () => {
+  const { t } = useTranslation()
   const [completedTests, setCompletedTests] = useState({})
   const scrollContainerRef = useRef(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -90,45 +92,45 @@ const AssessmentJourneySection = () => {
   const formTemplates = [
     {
       icon: 'person_add',
-      category: 'Avaliação Inicial',
-      title: 'Anamnese',
-      description: 'Histórico psiquiátrico abrangente e questionário de triagem inicial para participantes do estudo.',
+      category: t('journey.testCategories.initial'),
+      title: t('journey.tests.anamneseTitle'),
+      description: t('journey.tests.anamneseDescription'),
       badgeColor: 'green',
       formUrl: '/forms/anamnese-inicial',
       testId: 'anamnese-inicial'
     },
     {
       icon: 'feedback',
-      category: 'Avaliação Comportamental',
-      title: 'Disc Insight',
-      description: 'Ferramenta de avaliação de personalidade e padrões comportamentais',
+      category: t('journey.testCategories.behavioral'),
+      title: t('journey.tests.discTitle'),
+      description: t('journey.tests.discDescription'),
       badgeColor: 'yellow',
       formUrl: '/forms/disc-personality',
       testId: 'disc-insight'
     },
     {
       icon: 'psychology',
-      category: 'Múltiplas Inteligências',
-      title: 'Inteligências de Gardner',
-      description: 'Descubra suas inteligências dominantes baseado na teoria de Howard Gardner. 8 tipos de inteligência avaliados.',
+      category: t('journey.testCategories.multipleIntelligences'),
+      title: t('journey.tests.gardnerTitle'),
+      description: t('journey.tests.gardnerDescription'),
       badgeColor: 'green',
       formUrl: '/forms/multiple-intelligences',
       testId: 'multiple-intelligences'
     },
     {
       icon: 'work',
-      category: 'Orientação Profissional',
-      title: 'RIASEC - Teste de Holland',
-      description: 'Identifique seu perfil profissional através do modelo RIASEC. Descubra as carreiras ideais para você.',
+      category: t('journey.testCategories.career'),
+      title: t('journey.tests.riasecTitle'),
+      description: t('journey.tests.riasecDescription'),
       badgeColor: 'yellow',
       formUrl: '/forms/riasec',
       testId: 'riasec'
     },
     {
       icon: 'stars',
-      category: 'Personalidade',
-      title: 'Arquétipos de Jung',
-      description: 'Descubra seus arquétipos dominantes baseado na teoria de Carl Jung. 12 arquétipos universais avaliados.',
+      category: t('journey.testCategories.personality'),
+      title: t('journey.tests.archetypesTitle'),
+      description: t('journey.tests.archetypesDescription'),
       badgeColor: 'green',
       formUrl: '/forms/archetypes',
       testId: 'archetypes'
@@ -163,12 +165,12 @@ const AssessmentJourneySection = () => {
             <div className="flex flex-col items-center text-center gap-4">
               <div>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-                  SUA TRAJETÓRIA DE AVALIAÇÃO
+                  {t('journey.title')}
                 </h2>
                 <div className="mt-4 h-1 w-16 mx-auto bg-[#6152BD] rounded-full"></div>
               </div>
               <p className="mt-6 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl">
-                Complete as seguintes avaliações em sequência como parte de sua participação em nosso estudo.
+                {t('journey.subtitle')}
               </p>
             </div>
           </div>
@@ -181,7 +183,7 @@ const AssessmentJourneySection = () => {
             <button
               onClick={() => scroll('left')}
               className="absolute left-0 top-[45%] -translate-y-1/2 z-30 flex size-12 items-center justify-center rounded-full border border-[#9266CC]/60 bg-white text-[#6152BD] shadow-lg transition-colors hover:bg-[#6152BD]/10 dark:bg-slate-900 dark:text-[#C8A1FF] dark:border-[#413288]"
-              aria-label="Scroll Left"
+              aria-label={t('journey.tests.scrollLeft')}
             >
               <span className="material-symbols-outlined text-2xl">chevron_left</span>
             </button>
@@ -192,7 +194,7 @@ const AssessmentJourneySection = () => {
             <button
               onClick={() => scroll('right')}
               className="absolute right-0 top-[45%] -translate-y-1/2 z-30 flex size-12 items-center justify-center rounded-full border border-[#9266CC]/60 bg-white text-[#6152BD] shadow-lg transition-colors hover:bg-[#6152BD]/10 dark:bg-slate-900 dark:text-[#C8A1FF] dark:border-[#413288]"
-              aria-label="Scroll Right"
+              aria-label={t('journey.tests.scrollRight')}
             >
               <span className="material-symbols-outlined text-2xl">chevron_right</span>
             </button>
@@ -236,7 +238,7 @@ const AssessmentJourneySection = () => {
                   {isTestCompleted(template.testId) && (
                     <div className="mt-3 flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
                       <span className="material-symbols-outlined text-sm">verified</span>
-                      <span className="text-xs font-semibold">Concluído</span>
+                      <span className="text-xs font-semibold">{t('journey.tests.completedLabel')}</span>
                     </div>
                   )}
                 </div>
@@ -270,10 +272,16 @@ const AssessmentJourneySection = () => {
           {/* Progress Button */}
           <div className="mt-10 flex flex-col items-center justify-center px-4 gap-3">
             <div className="text-center">
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Progresso da Jornada</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                {t('journey.progressLabel')}
+              </p>
               <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                {completedCount} de {requiredTests.length} avaliações concluídas
-                {allTestsCompleted && <span className="ml-2 text-[#6152BD] dark:text-[#C8A1FF]">✓ Completo!</span>}
+                {t('journey.progressText', { completed: completedCount, total: requiredTests.length })}
+                {allTestsCompleted && (
+                  <span className="ml-2 text-[#6152BD] dark:text-[#C8A1FF]">
+                    {t('journey.progressComplete')}
+                  </span>
+                )}
               </p>
             </div>
             <button

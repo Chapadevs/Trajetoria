@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { TestIconInline } from '../../utils/testIcons'
+import { useTranslation } from 'react-i18next'
 
 const AssessmentCard = ({ icon, category, title, description, badge, badgeColor, formUrl, testId, onViewResults, isNext = false }) => {
+  const { t } = useTranslation()
   const [isCompleted, setIsCompleted] = useState(false)
 
   useEffect(() => {
@@ -58,7 +60,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
             {!isCompleted && isNext && (
               <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#413288] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-[#6152BD]">
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                Próximo teste
+                {t('assessmentCard.nextTest')}
               </span>
             )}
             <p className="text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] uppercase tracking-wide">
@@ -88,7 +90,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
             onClick={handleViewResultsClick}
             className="flex items-center gap-2 text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] hover:text-[#413288] dark:hover:text-white transition-colors"
           >
-            <span>Ver Resultados</span>
+            <span>{t('assessmentCard.viewResults')}</span>
             <span className="material-symbols-outlined text-base">chevron_right</span>
           </button>
         ) : (
@@ -96,7 +98,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
             to={formUrl || '#'}
             className="flex items-center gap-2 text-sm font-semibold text-[#6152BD] dark:text-[#C8A1FF] hover:text-[#413288] dark:hover:text-white transition-colors"
           >
-            <span>Iniciar</span>
+            <span>{t('assessmentCard.start')}</span>
             <span className="material-symbols-outlined text-base">chevron_right</span>
           </Link>
         )}
@@ -105,7 +107,7 @@ const AssessmentCard = ({ icon, category, title, description, badge, badgeColor,
           <Link
             to={formUrl || '#'}
             className="flex size-10 items-center justify-center rounded-full border border-[#9266CC]/40 text-[#6152BD] dark:text-[#C8A1FF] hover:bg-[#9266CC]/10 dark:hover:bg-[#6152BD]/30 transition-colors"
-            title="Refazer teste"
+            title={t('assessmentCard.retakeTitle')}
           >
             <span className="material-symbols-outlined text-lg">refresh</span>
           </Link>

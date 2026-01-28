@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 // Text Input Component
 export const TextInput = ({ 
@@ -135,6 +136,8 @@ export const FileUpload = ({
   maxSize = "10MB",
   ...props 
 }) => {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col">
       {label && (
@@ -156,10 +159,12 @@ export const FileUpload = ({
               cloud_upload
             </span>
             <p className="mb-2 text-sm text-center text-slate-600 dark:text-slate-400">
-              <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
+              {t('fileUpload.clickOrDrop')}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-500">
-              {accept.includes('image') ? 'Imagens' : 'Arquivos'} (MÁX. {maxSize})
+              {accept.includes('image')
+                ? t('fileUpload.imagesLabel', { maxSize })
+                : t('fileUpload.filesLabel', { maxSize })}
             </p>
           </div>
           <input 
