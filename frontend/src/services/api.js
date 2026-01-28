@@ -9,9 +9,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://trajetoria-647906054947
  * Solicita ao backend a geração completa do relatório (narrativa + PDF)
  * @param {Object} userData - Dados da anamnese inicial
  * @param {Object} tests - Objeto com todos os testes completados
+ * @param {string} [lang='en'] - Idioma do relatório: 'en' ou 'pt'
  * @returns {Promise<{ narrative: string, pdfBase64: string, filename?: string, mimeType?: string }>}
  */
-export async function generateCompleteReport(userData, tests) {
+export async function generateCompleteReport(userData, tests, lang = 'en') {
   try {
     const response = await fetch(`${API_URL}/api/reports/generate`, {
       method: 'POST',
@@ -20,8 +21,9 @@ export async function generateCompleteReport(userData, tests) {
       },
       body: JSON.stringify({
         userData,
-        tests
-      })
+        tests,
+        lang: lang === 'pt' ? 'pt' : 'en',
+      }),
     });
 
     const contentType = response.headers.get('Content-Type') || '';

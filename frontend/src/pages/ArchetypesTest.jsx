@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import FormLayout from '../components/layout/FormLayout/FormLayout'
 import { FormSection, FullWidthItem } from '../components/forms/inputs/FormFields'
@@ -12,6 +13,7 @@ import { useTestResults } from '../hooks/useTestResults'
 import { saveDraft } from '../utils/storageUtils'
 
 const ArchetypesTest = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   
   // Hooks customizados
@@ -95,7 +97,7 @@ const ArchetypesTest = () => {
     
     for (let i = startQ; i <= endQ; i++) {
       if (!formData[`q${i}`]) {
-        newErrors[`q${i}`] = 'Por favor, selecione uma opção.'
+        newErrors[`q${i}`] = t('tests.archetypes.errorSelect')
       }
     }
 
@@ -186,140 +188,19 @@ const ArchetypesTest = () => {
     const sorted = Object.entries(results).sort((a, b) => b[1] - a[1])
     const top3 = sorted.slice(0, 3)
     
-    const archetypeNames = {
-      inocente: 'O Inocente',
-      sabio: 'O Sábio',
-      explorador: 'O Explorador',
-      foraDaLei: 'O Fora da Lei',
-      mago: 'O Mago',
-      heroi: 'O Herói',
-      amante: 'O Amante',
-      bobo: 'O Bobo da Corte',
-      caraComum: 'O Cara Comum',
-      cuidador: 'O Cuidador',
-      governante: 'O Governante',
-      criador: 'O Criador'
-    }
-
     setTimeout(() => navigate('/'), 2000)
   }
 
-  const stepTitles = {
-    1: 'O Inocente',
-    2: 'O Sábio',
-    3: 'O Explorador',
-    4: 'O Fora da Lei',
-    5: 'O Mago',
-    6: 'O Herói',
-    7: 'O Amante',
-    8: 'O Bobo da Corte',
-    9: 'O Cara Comum',
-    10: 'O Cuidador',
-    11: 'O Governante',
-    12: 'O Criador'
-  }
-
-  const questions = {
-    1: [
-      { q: 1, label: 'Acredito que as pessoas são naturalmente boas' },
-      { q: 2, label: 'Prefiro ver o lado positivo das situações' },
-      { q: 3, label: 'Valorizo a simplicidade e a honestidade acima de tudo' },
-      { q: 4, label: 'Confio nas pessoas facilmente' },
-      { q: 5, label: 'Busco a felicidade nas pequenas coisas do dia a dia' }
-    ],
-    2: [
-      { q: 6, label: 'Adoro aprender coisas novas e buscar conhecimento' },
-      { q: 7, label: 'Prefiro analisar e refletir antes de tomar decisões' },
-      { q: 8, label: 'Valorizo a sabedoria e a experiência' },
-      { q: 9, label: 'Gosto de compartilhar o que sei com os outros' },
-      { q: 10, label: 'Busco sempre entender o porquê das coisas' }
-    ],
-    3: [
-      { q: 11, label: 'Adoro viajar e conhecer novos lugares' },
-      { q: 12, label: 'Sinto-me sufocado quando tenho muitas restrições' },
-      { q: 13, label: 'Gosto de sair da minha zona de conforto' },
-      { q: 14, label: 'Prefiro experiências novas a rotinas estabelecidas' },
-      { q: 15, label: 'Valorizo minha independência e autonomia' }
-    ],
-    4: [
-      { q: 16, label: 'Questiono regras que não fazem sentido' },
-      { q: 17, label: 'Não tenho medo de ir contra a maioria' },
-      { q: 18, label: 'Acredito que às vezes é preciso quebrar as regras' },
-      { q: 19, label: 'Gosto de desafiar o que é considerado "normal"' },
-      { q: 20, label: 'Prefiro criar meu próprio caminho' }
-    ],
-    5: [
-      { q: 21, label: 'Acredito que posso transformar minhas ideias em realidade' },
-      { q: 22, label: 'Gosto de criar experiências únicas para as pessoas' },
-      { q: 23, label: 'Vejo possibilidades onde outros veem limitações' },
-      { q: 24, label: 'Tenho facilidade em visualizar e manifestar meus sonhos' },
-      { q: 25, label: 'Busco sempre inovar e criar algo especial' }
-    ],
-    6: [
-      { q: 26, label: 'Gosto de superar desafios difíceis' },
-      { q: 27, label: 'Sinto-me motivado a fazer a diferença' },
-      { q: 28, label: 'Não desisto facilmente dos meus objetivos' },
-      { q: 29, label: 'Valorizo coragem e determinação' },
-      { q: 30, label: 'Quero deixar um legado positivo' }
-    ],
-    7: [
-      { q: 31, label: 'Valorizo profundamente minhas relações pessoais' },
-      { q: 32, label: 'Busco beleza e prazer na vida' },
-      { q: 33, label: 'Sou apaixonado pelo que faço' },
-      { q: 34, label: 'Gosto de criar momentos especiais com quem amo' },
-      { q: 35, label: 'Sinto as emoções de forma muito intensa' }
-    ],
-    8: [
-      { q: 36, label: 'Adoro fazer as pessoas rirem' },
-      { q: 37, label: 'Prefiro não levar a vida tão a sério' },
-      { q: 38, label: 'Gosto de diversão e espontaneidade' },
-      { q: 39, label: 'Vivo o momento presente intensamente' },
-      { q: 40, label: 'Uso o humor para lidar com situações difíceis' }
-    ],
-    9: [
-      { q: 41, label: 'Valorizo a simplicidade e autenticidade' },
-      { q: 42, label: 'Prefiro estar com pessoas comuns e genuínas' },
-      { q: 43, label: 'Acredito que todos merecem respeito igual' },
-      { q: 44, label: 'Gosto de fazer parte de um grupo ou comunidade' },
-      { q: 45, label: 'Não gosto de privilégios ou elitismo' }
-    ],
-    10: [
-      { q: 46, label: 'Sinto-me realizado ao ajudar os outros' },
-      { q: 47, label: 'Coloco as necessidades dos outros antes das minhas' },
-      { q: 48, label: 'Sou muito empático e compassivo' },
-      { q: 49, label: 'Gosto de cuidar e proteger quem amo' },
-      { q: 50, label: 'Sinto-me responsável pelo bem-estar dos outros' }
-    ],
-    11: [
-      { q: 51, label: 'Gosto de estar no controle das situações' },
-      { q: 52, label: 'Tenho facilidade em liderar e organizar' },
-      { q: 53, label: 'Valorizo poder e influência' },
-      { q: 54, label: 'Gosto de estabelecer regras e estruturas' },
-      { q: 55, label: 'Sinto-me responsável por criar ordem' }
-    ],
-    12: [
-      { q: 56, label: 'Adoro criar coisas novas e originais' },
-      { q: 57, label: 'Expresso-me através da minha criatividade' },
-      { q: 58, label: 'Valorizo a inovação e a originalidade' },
-      { q: 59, label: 'Gosto de dar vida às minhas ideias' },
-      { q: 60, label: 'Busco deixar minha marca pessoal em tudo que faço' }
-    ]
-  }
-
-  const subtitles = {
-    1: 'Busca felicidade, otimismo e simplicidade. Acredita no bem e na pureza.',
-    2: 'Busca verdade, conhecimento e compreensão profunda do mundo.',
-    3: 'Busca liberdade, aventura e descoberta de novos horizontes.',
-    4: 'Desafia o status quo, quebra regras e busca revolução e mudança radical.',
-    5: 'Transforma sonhos em realidade, cria experiências mágicas e momentos especiais.',
-    6: 'Busca superar desafios, provar seu valor e fazer a diferença no mundo.',
-    7: 'Busca intimidade, paixão e conexões profundas com pessoas e experiências.',
-    8: 'Traz alegria, diversão e leveza. Vive o momento e faz os outros rirem.',
-    9: 'Busca pertencimento, conexão autêntica e igualdade entre todos.',
-    10: 'Cuida, nutre e protege os outros. Busca ajudar e servir com compaixão.',
-    11: 'Busca controle, ordem e liderança. Cria estruturas e toma decisões importantes.',
-    12: 'Busca inovação, expressão e criar algo com valor duradouro.'
-  }
+  const stepTitles = useMemo(() => t('tests.archetypes.steps', { returnObjects: true }), [t])
+  const subtitles = useMemo(() => t('tests.archetypes.subtitles', { returnObjects: true }), [t])
+  const questions = useMemo(() => {
+    const qs = {}
+    for (let s = 1; s <= 12; s++) {
+      const stepData = t(`tests.archetypes.questions.step${s}`, { returnObjects: true })
+      qs[s] = Array.isArray(stepData) ? stepData.map((item, i) => ({ ...item, q: (s - 1) * 5 + i + 1 })) : []
+    }
+    return qs
+  }, [t])
 
   // Tela de introdução antes de iniciar o teste
   if (!hasStarted) {
@@ -333,39 +214,25 @@ const ArchetypesTest = () => {
                 <span className="material-symbols-outlined text-white text-4xl">stars</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
-                Arquétipos de Jung
+                {t('tests.archetypes.intro.title')}
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-400">
-                Descubra Seu Arquétipo Dominante
+                {t('tests.archetypes.intro.subtitle')}
               </p>
             </div>
 
-            {/* Conteúdo */}
             <div className="space-y-6 mb-8">
               <div className="bg-primary/10 dark:bg-primary/20 rounded-xl p-6 border border-primary/20">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                  O que são os Arquétipos?
+                  {t('tests.archetypes.intro.whatIs')}
                 </h2>
                 <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                  Os Arquétipos de Jung são padrões universais de comportamento e personalidade que refletem motivações, medos e desejos profundos. Este teste identifica quais dos 12 arquétipos principais mais se alinham com sua personalidade, ajudando você a entender melhor suas motivações e como você interage com o mundo.
+                  {t('tests.archetypes.intro.whatIsDesc')}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {[
-                  { icon: 'sentiment_satisfied', name: 'Inocente', desc: 'Otimista', color: 'yellow' },
-                  { icon: 'auto_stories', name: 'Sábio', desc: 'Conhecedor', color: 'indigo' },
-                  { icon: 'explore', name: 'Explorador', desc: 'Aventureiro', color: 'blue' },
-                  { icon: 'emergency', name: 'Fora da Lei', desc: 'Rebelde', color: 'red' },
-                  { icon: 'auto_fix_high', name: 'Mago', desc: 'Transformador', color: 'purple' },
-                  { icon: 'shield', name: 'Herói', desc: 'Corajoso', color: 'orange' },
-                  { icon: 'favorite', name: 'Amante', desc: 'Apaixonado', color: 'pink' },
-                  { icon: 'theater_comedy', name: 'Bobo', desc: 'Alegre', color: 'lime' },
-                  { icon: 'group', name: 'Cara Comum', desc: 'Genuíno', color: 'gray' },
-                  { icon: 'healing', name: 'Cuidador', desc: 'Protetor', color: 'green' },
-                  { icon: 'workspace_premium', name: 'Governante', desc: 'Líder', color: 'amber' },
-                  { icon: 'brush', name: 'Criador', desc: 'Inovador', color: 'cyan' }
-                ].map((type, idx) => (
+                {(t('tests.archetypes.intro.types', { returnObjects: true }) || []).map((type, idx) => (
                   <div key={idx} className="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg">
                     <div className="flex flex-col items-center text-center gap-2">
                       <span className="material-symbols-outlined text-primary text-2xl">{type.icon}</span>
@@ -381,42 +248,41 @@ const ArchetypesTest = () => {
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
                 <h3 className="font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                   <span className="material-symbols-outlined text-blue-600">info</span>
-                  Informações sobre o teste
+                  {t('tests.archetypes.intro.infoTitle')}
                 </h3>
                 <ul className="space-y-2 text-slate-700 dark:text-slate-300">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Duração:</strong> Aproximadamente 20-25 minutos</span>
+                    <span><strong>{t('tests.archetypes.intro.duration')}</strong> {t('tests.archetypes.intro.durationText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Questões:</strong> 60 afirmações divididas em 12 arquétipos</span>
+                    <span><strong>{t('tests.archetypes.intro.questionsCount')}</strong> {t('tests.archetypes.intro.questionsCountText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Objetivo:</strong> Identificar seus arquétipos dominantes</span>
+                    <span><strong>{t('tests.archetypes.intro.objective')}</strong> {t('tests.archetypes.intro.objectiveText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span>Avalie cada afirmação de acordo com o quanto ela se aplica a você</span>
+                    <span>{t('tests.archetypes.intro.honesty')}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Botões */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/')}
                 className="px-6 py-3 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
-                Voltar
+                {t('tests.archetypes.intro.backButton')}
               </button>
               <button
                 onClick={() => setHasStarted(true)}
                 className="px-8 py-3 rounded-lg bg-[#6152BD] text-white font-bold hover:shadow-lg transform hover:scale-105 transition-all"
               >
-                Iniciar Teste
+                {t('tests.archetypes.intro.startButton')}
               </button>
             </div>
           </div>
@@ -429,9 +295,9 @@ const ArchetypesTest = () => {
     <FormLayout currentStep={currentStep} totalSteps={12} progress={progress}>
       {/* Header */}
       <TestHeader
-        testNumber="Arquétipos"
-        title="Descubra Seus Arquétipos de Jung"
-        objective="Baseado na teoria dos arquétipos de Carl Jung, este teste identifica os padrões de personalidade que mais se alinham com você."
+        testNumber={t('tests.archetypes.header.testNumber')}
+        title={t('tests.archetypes.header.title')}
+        objective={t('tests.archetypes.header.objective')}
         currentStep={currentStep}
         stepTitle={stepTitles[currentStep]}
         savedResults={savedResults}

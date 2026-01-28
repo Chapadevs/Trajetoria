@@ -20,21 +20,21 @@ const router = express.Router();
  */
 router.post('/generate', async (req, res) => {
   try {
-    const { userData, tests } = req.body;
+    const { userData, tests, lang } = req.body;
+    const reportLang = lang === 'pt' ? 'pt' : 'en';
 
     if (!userData || !tests) {
-      return res.status(400).json({ 
-        error: 'Dados inválidos', 
-        message: 'É necessário enviar userData e tests' 
+      return res.status(400).json({
+        error: reportLang === 'en' ? 'Invalid data' : 'Dados inválidos',
+        message: reportLang === 'en' ? 'userData and tests are required' : 'É necessário enviar userData e tests',
       });
     }
 
-    const roadmap = await generateLifeRoadmap(userData, tests);
-    const completeNarrative = await generateCompleteReportNarrative(userData, tests);
-    const pdfBuffer = await generateCompletePDF(userData, tests, roadmap, completeNarrative);
-    const narrative = await generateReportNarrative(userData, tests);
+    const roadmap = await generateLifeRoadmap(userData, tests, reportLang);
+    const completeNarrative = await generateCompleteReportNarrative(userData, tests, reportLang);
+    const pdfBuffer = await generateCompletePDF(userData, tests, roadmap, completeNarrative, reportLang);
+    const narrative = await generateReportNarrative(userData, tests, reportLang);
 
-    // Retorna narrativa e PDF (Base64) para o frontend decidir como usar
     res.json({
       narrative,
       roadmap,
@@ -42,12 +42,12 @@ router.post('/generate', async (req, res) => {
       filename: `relatorio-completo-${Date.now()}.pdf`,
       mimeType: 'application/pdf',
     });
-
   } catch (error) {
     console.error('Erro ao gerar PDF:', error);
-    res.status(500).json({ 
-      error: 'Erro ao gerar relatório', 
-      message: error.message 
+    const reportLang = req.body?.lang === 'pt' ? 'pt' : 'en';
+    res.status(500).json({
+      error: reportLang === 'en' ? 'Error generating report' : 'Erro ao gerar relatório',
+      message: error.message,
     });
   }
 });

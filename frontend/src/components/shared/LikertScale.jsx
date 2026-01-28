@@ -1,15 +1,17 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 /**
- * Componente LikertScale - Escala Likert de 5 pontos para avaliação
+ * LikertScale - 5-point Likert scale for assessments
  */
 export const LikertScale = ({ name, label, value, onChange, error }) => {
+  const { t } = useTranslation()
   const options = [
-    { value: '1', label: 'Discordo totalmente' },
-    { value: '2', label: 'Discordo' },
-    { value: '3', label: 'Neutro' },
-    { value: '4', label: 'Concordo' },
-    { value: '5', label: 'Concordo totalmente' }
+    { value: '1', label: t('likertScale.option1') },
+    { value: '2', label: t('likertScale.option2') },
+    { value: '3', label: t('likertScale.option3') },
+    { value: '4', label: t('likertScale.option4') },
+    { value: '5', label: t('likertScale.option5') },
   ]
 
   return (

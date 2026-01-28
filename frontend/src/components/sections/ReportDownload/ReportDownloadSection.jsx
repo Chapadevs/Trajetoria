@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import { generateCompleteReport, checkBackendHealth } from '../../../services/api'
 import { prependCoverAndSummary, composeWithCoverSummaryAnamnese, composeWithCoverSummaryAnamneseDisc, composeWithCoverSummaryAnamneseDiscMI, composeWithCoverSummaryAnamneseDiscMIRiasec, composeWithCoverSummaryAnamneseDiscMIRiasecArchetypes, composeWithHighlights, composeWithMoreHighlights, composeWithActionPlan, composeWithConclusion } from '../../../utils/pdfUtils'
@@ -28,6 +29,7 @@ const markdownComponents = {
 }
 
 const ReportDownloadSection = () => {
+  const { t, i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [completedCount, setCompletedCount] = useState(0)
@@ -129,7 +131,7 @@ const ReportDownloadSection = () => {
         objetivosCarreira: anamneseData.objetivosCarreira || []
       }
 
-      const result = await generateCompleteReport(userData, tests)
+      const result = await generateCompleteReport(userData, tests, i18n.language || 'en')
       const filename = result.filename || `relatorio-completo-${new Date().getTime()}.pdf`
 
       // Compose PDF with cover + summary + anamnese + disc + MI + riasec + archetypes + highlights
@@ -149,7 +151,7 @@ const ReportDownloadSection = () => {
       
     } catch (err) {
       console.error('Erro ao baixar relatório:', err)
-      setError(err.message || 'Erro ao gerar o relatório. Tente novamente.')
+      setError(err.message || t('reportDownload.errorGeneric'))
       setReportData(null)
     } finally {
       setIsLoading(false)
@@ -161,7 +163,7 @@ const ReportDownloadSection = () => {
       <div className="container mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
         {!allTestsCompleted && (
           <h3 className="mb-6 text-center text-base font-medium text-slate-700 dark:text-slate-300">
-            Complete todos os testes acima para gerar seu relatório personalizado
+            {t('reportDownload.hint')}
           </h3>
         )}
 
@@ -172,10 +174,10 @@ const ReportDownloadSection = () => {
               <div className="text-center p-8">
                 <span className="material-symbols-outlined text-6xl text-slate-400 dark:text-slate-500 mb-4">lock</span>
                 <p className="text-lg font-semibold text-slate-600 dark:text-slate-400 mb-2">
-                  Complete todas as {totalTests} etapas para desbloquear
+                  {t('reportDownload.unlockSteps', { total: totalTests })}
                 </p>
                 <p className="text-sm text-slate-500 dark:text-slate-500">
-                  Progresso: {completedCount}/{totalTests} testes completados
+                  {t('reportDownload.progress', { completed: completedCount, total: totalTests })}
                 </p>
               </div>
             </div>
@@ -185,10 +187,10 @@ const ReportDownloadSection = () => {
           <div className={`bg-[#6152BD] p-6 lg:p-8 text-white ${!allTestsCompleted ? 'opacity-60' : ''}`}>
             <div className="flex items-center justify-center gap-3 mb-2">
               <span className="material-symbols-outlined text-4xl lg:text-5xl">{allTestsCompleted ? 'description' : 'lock'}</span>
-              <h2 className="text-2xl lg:text-3xl font-bold">Relatório Completo</h2>
+              <h2 className="text-2xl lg:text-3xl font-bold">{t('reportDownload.title')}</h2>
             </div>
             <p className="text-center text-white/90 text-sm lg:text-base">
-              {allTestsCompleted ? 'Baixe um PDF profissional com todos os seus resultados' : 'Complete todas as etapas para desbloquear o relatório'}
+              {allTestsCompleted ? t('reportDownload.subtitleReady') : t('reportDownload.subtitleLocked')}
             </p>
           </div>
 
@@ -201,13 +203,13 @@ const ReportDownloadSection = () => {
                   <span className="material-symbols-outlined text-yellow-600 dark:text-yellow-400">warning</span>
                   <div className="flex-1">
                     <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
-                      Backend Offline
+                      {t('reportDownload.backendOffline')}
                     </h4>
                     <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                      O servidor de geração de relatórios está offline. Por favor, certifique-se de que o backend está rodando na porta 3001.
+                      {t('reportDownload.backendOfflineDesc')}
                     </p>
                     <p className="text-xs text-yellow-600 dark:text-yellow-500 mt-2">
-                      Execute: <code className="bg-yellow-100 dark:bg-yellow-900/40 px-2 py-1 rounded">cd backend && npm install && npm run dev</code>
+                      {t('reportDownload.backendOfflineCmd')} <code className="bg-yellow-100 dark:bg-yellow-900/40 px-2 py-1 rounded">cd backend && npm install && npm run dev</code>
                     </p>
                   </div>
                 </div>
@@ -217,32 +219,32 @@ const ReportDownloadSection = () => {
             {/* Features List */}
             <div className="mb-12 text-center">
               <h3 className="mb-5 text-lg font-semibold text-slate-900 dark:text-white">
-                📋 O relatório {allTestsCompleted ? 'inclui' : 'incluirá'}:
+                📋 {t('reportDownload.reportIncludes', { verb: allTestsCompleted ? t('reportDownload.reportIncludesPresent') : t('reportDownload.reportIncludesFuture') })}
               </h3>
               <div className="mx-auto grid w-full max-w-2xl grid-cols-1 justify-items-center gap-3 text-center md:grid-cols-2 md:gap-x-4">
                 <div className="flex w-full max-w-xs items-center justify-center md:justify-end gap-2 text-sm md:max-w-none">
-                  <span className="text-slate-700 dark:text-slate-300">Anamnese Inicial completa</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('reportDownload.featureAnamnese')}</span>
                   <span className="material-symbols-outlined text-[#6152BD] text-lg">check_circle</span>
                 </div>
                 <div className="flex w-full max-w-xs items-center justify-center md:justify-start gap-2 text-sm md:max-w-none">
                   <span className="material-symbols-outlined text-[#6152BD] text-lg mt-0.5">check_circle</span>
-                  <span className="text-slate-700 dark:text-slate-300">Análise DISC detalhada</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('reportDownload.featureDisc')}</span>
                 </div>
                 <div className="flex w-full max-w-xs items-center justify-center md:justify-end gap-2 text-sm md:max-w-none">
-                  <span className="text-slate-700 dark:text-slate-300">Perfil de Inteligências Múltiplas</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('reportDownload.featureMI')}</span>
                   <span className="material-symbols-outlined text-[#6152BD] text-lg">check_circle</span>
                 </div>
                 <div className="flex w-full max-w-xs items-center justify-center md:justify-start gap-2 text-sm md:max-w-none">
                   <span className="material-symbols-outlined text-[#6152BD] text-lg mt-0.5">check_circle</span>
-                  <span className="text-slate-700 dark:text-slate-300">Código Holland (RIASEC)</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('reportDownload.featureRiasec')}</span>
                 </div>
                 <div className="flex w-full max-w-xs items-center justify-center md:justify-end gap-2 text-sm md:max-w-none">
-                  <span className="text-slate-700 dark:text-slate-300">Arquétipos de Personalidade</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('reportDownload.featureArchetypes')}</span>
                   <span className="material-symbols-outlined text-[#6152BD] text-lg">check_circle</span>
                 </div>
                 <div className="flex w-full max-w-xs items-center justify-center md:justify-start gap-2 text-sm md:max-w-none">
                   <span className="material-symbols-outlined text-[#6152BD] text-lg mt-0.5">check_circle</span>
-                  <span className="text-slate-700 dark:text-slate-300">Recomendações personalizadas</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('reportDownload.featureRecommendations')}</span>
                 </div>
               </div>
             </div>
@@ -275,16 +277,16 @@ const ReportDownloadSection = () => {
                   {isLoading ? 'hourglass_empty' : allTestsCompleted ? 'download' : 'lock'}
                 </span>
                 <span>
-                  {isLoading ? 'Gerando seu PDF...' : 
-                   !allTestsCompleted ? `Complete Todos os ${totalTests} Testes (${completedCount}/${totalTests})` : 
-                   'Baixar Relatório Completo'}
+                  {isLoading ? t('reportDownload.generatingPdf') : 
+                   !allTestsCompleted ? t('reportDownload.completeAllTests', { total: totalTests, completed: completedCount }) : 
+                   t('reportDownload.downloadReport')}
                 </span>
               </button>
 
               {isLoading && (
                 <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#6152BD] border-t-transparent"></div>
-                  <span>Isso pode levar alguns segundos...</span>
+                  <span>{t('reportDownload.mayTakeSeconds')}</span>
                 </div>
               )}
             </div>
@@ -293,12 +295,12 @@ const ReportDownloadSection = () => {
               <div className="mt-10">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   <h3 className="text-lg font-semibold text-primary-dark dark:text-primary-light">
-                    Narrativa personalizada gerada pela IA
+                    {t('reportDownload.narrativeTitle')}
                   </h3>
                   <div className="flex flex-wrap gap-3 items-center">
                     {reportData.generatedAt && (
                       <span className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/50 px-3 py-1 rounded-full">
-                        Gerado em {new Date(reportData.generatedAt).toLocaleString('pt-BR')}
+                        {t('reportDownload.generatedAt', { date: new Date(reportData.generatedAt).toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US') })}
                       </span>
                     )}
                     <button
@@ -331,7 +333,7 @@ const ReportDownloadSection = () => {
                       className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#6152BD] rounded-full shadow hover:shadow-lg transition-all"
                     >
                       <span className="material-symbols-outlined text-base">download</span>
-                      Baixar PDF novamente
+                      {t('reportDownload.downloadAgain')}
                     </button>
                   </div>
                 </div>
@@ -352,11 +354,10 @@ const ReportDownloadSection = () => {
                     <span className="material-symbols-outlined text-yellow-600 dark:text-yellow-400 text-lg">warning</span>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-2">
-                        Testes Restantes: {totalTests - completedCount}
+                        {t('reportDownload.testsRemaining', { count: totalTests - completedCount })}
                       </p>
                       <p className="text-xs text-yellow-700 dark:text-yellow-400 leading-relaxed">
-                        Para gerar o relatório completo, você precisa completar TODOS os {totalTests} testes disponíveis.
-                        Progresso atual: {completedCount} de {totalTests} completos ({Math.round((completedCount / totalTests) * 100)}%)
+                        {t('reportDownload.testsRemainingDesc', { total: totalTests, completed: completedCount, percent: Math.round((completedCount / totalTests) * 100) })}
                       </p>
                     </div>
                   </div>

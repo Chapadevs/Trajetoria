@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import FormLayout from '../components/layout/FormLayout/FormLayout'
 import { TextInput, FormSection, FullWidthItem } from '../components/forms/inputs/FormFields'
@@ -13,6 +14,7 @@ import { validateRequired, getErrorMessage } from '../utils/validationUtils'
 import { saveDraft } from '../utils/storageUtils'
 
 const MultipleIntelligencesTest = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   
@@ -93,7 +95,7 @@ const MultipleIntelligencesTest = () => {
     
     for (let i = startQ; i <= endQ; i++) {
       if (!formData[`q${i}`]) {
-        newErrors[`q${i}`] = 'Por favor, selecione uma opção.'
+        newErrors[`q${i}`] = t('tests.multipleIntelligences.errorSelect')
       }
     }
 
@@ -189,86 +191,16 @@ const MultipleIntelligencesTest = () => {
     setTimeout(() => navigate('/'), 2000)
   }
 
-  const stepTitles = {
-    1: 'Inteligência Espacial',
-    2: 'Inteligência Lógico-Matemática',
-    3: 'Inteligência Linguística',
-    4: 'Inteligência Musical',
-    5: 'Inteligência Corporal-Cinestésica',
-    6: 'Inteligência Interpessoal',
-    7: 'Inteligência Intrapessoal',
-    8: 'Inteligência Naturalista'
-  }
-
-  const questions = {
-    1: [
-      { q: 1, label: 'Tenho facilidade para ler mapas e me orientar em lugares novos' },
-      { q: 2, label: 'Gosto de desenhar, pintar ou criar imagens mentais vívidas' },
-      { q: 3, label: 'Consigo visualizar objetos de diferentes ângulos na minha mente' },
-      { q: 4, label: 'Aprecio arte visual, arquitetura e design' },
-      { q: 5, label: 'Tenho facilidade para montar quebra-cabeças e jogos espaciais' }
-    ],
-    2: [
-      { q: 6, label: 'Gosto de resolver problemas matemáticos e quebra-cabeças lógicos' },
-      { q: 7, label: 'Tenho facilidade para identificar padrões e relações entre conceitos' },
-      { q: 8, label: 'Prefiro explicações lógicas e baseadas em evidências' },
-      { q: 9, label: 'Gosto de experimentar e testar hipóteses' },
-      { q: 10, label: 'Sinto-me confortável trabalhando com números e estatísticas' }
-    ],
-    3: [
-      { q: 11, label: 'Tenho facilidade para expressar minhas ideias por escrito' },
-      { q: 12, label: 'Gosto de ler livros, artigos e outros textos' },
-      { q: 13, label: 'Aprendo bem através de palestras e discussões verbais' },
-      { q: 14, label: 'Tenho um vocabulário amplo e gosto de aprender palavras novas' },
-      { q: 15, label: 'Consigo contar histórias de forma envolvente' }
-    ],
-    4: [
-      { q: 16, label: 'Consigo identificar facilmente diferentes instrumentos em uma música' },
-      { q: 17, label: 'Tenho facilidade para lembrar melodias e ritmos' },
-      { q: 18, label: 'Gosto de cantar, tocar instrumentos ou compor músicas' },
-      { q: 19, label: 'A música influencia bastante meu humor e concentração' },
-      { q: 20, label: 'Consigo perceber quando uma nota está desafinada' }
-    ],
-    5: [
-      { q: 21, label: 'Aprendo melhor quando posso praticar fisicamente' },
-      { q: 22, label: 'Tenho boa coordenação motora e habilidades físicas' },
-      { q: 23, label: 'Gosto de atividades que envolvem movimento e uso do corpo' },
-      { q: 24, label: 'Tenho facilidade para imitar gestos e movimentos' },
-      { q: 25, label: 'Prefiro trabalhar com as mãos em projetos práticos' }
-    ],
-    6: [
-      { q: 26, label: 'Tenho facilidade para entender os sentimentos dos outros' },
-      { q: 27, label: 'Gosto de trabalhar em equipe e colaborar com outras pessoas' },
-      { q: 28, label: 'Sou bom em resolver conflitos entre pessoas' },
-      { q: 29, label: 'As pessoas costumam me procurar para pedir conselhos' },
-      { q: 30, label: 'Tenho facilidade para me comunicar e criar conexões com diferentes tipos de pessoas' }
-    ],
-    7: [
-      { q: 31, label: 'Tenho uma boa compreensão das minhas próprias emoções' },
-      { q: 32, label: 'Gosto de refletir sobre meus valores e objetivos de vida' },
-      { q: 33, label: 'Prefiro trabalhar sozinho em alguns projetos' },
-      { q: 34, label: 'Tenho consciência dos meus pontos fortes e áreas de melhoria' },
-      { q: 35, label: 'Costumo fazer autorreflexão regularmente' }
-    ],
-    8: [
-      { q: 36, label: 'Gosto de estar em contato com a natureza' },
-      { q: 37, label: 'Tenho facilidade para identificar plantas, animais e outros elementos naturais' },
-      { q: 38, label: 'Me preocupo com questões ambientais e sustentabilidade' },
-      { q: 39, label: 'Gosto de observar padrões e mudanças na natureza' },
-      { q: 40, label: 'Sinto-me revigorado quando passo tempo ao ar livre' }
-    ]
-  }
-
-  const subtitles = {
-    1: 'Capacidade de visualizar e manipular objetos no espaço',
-    2: 'Habilidade para raciocínio lógico e resolução de problemas',
-    3: 'Sensibilidade para a linguagem escrita e falada',
-    4: 'Capacidade de perceber, criar e reproduzir música',
-    5: 'Habilidade para usar o corpo de forma habilidosa',
-    6: 'Capacidade de compreender e interagir com outras pessoas',
-    7: 'Conhecimento de si mesmo e capacidade de autorreflexão',
-    8: 'Sensibilidade para o mundo natural'
-  }
+  const stepTitles = useMemo(() => t('tests.multipleIntelligences.steps', { returnObjects: true }), [t])
+  const subtitles = useMemo(() => t('tests.multipleIntelligences.subtitles', { returnObjects: true }), [t])
+  const questions = useMemo(() => {
+    const qs = {}
+    for (let s = 1; s <= 8; s++) {
+      const stepData = t(`tests.multipleIntelligences.questions.step${s}`, { returnObjects: true })
+      qs[s] = Array.isArray(stepData) ? stepData.map((item, i) => ({ ...item, q: (s - 1) * 5 + i + 1 })) : []
+    }
+    return qs
+  }, [t])
 
   // Tela de introdução antes de iniciar o teste
   if (!hasStarted) {
@@ -282,35 +214,25 @@ const MultipleIntelligencesTest = () => {
                 <span className="material-symbols-outlined text-white text-4xl">lightbulb</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
-                Múltiplas Inteligências
+                {t('tests.multipleIntelligences.intro.title')}
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-400">
-                Descubra Seus Pontos Fortes
+                {t('tests.multipleIntelligences.intro.subtitle')}
               </p>
             </div>
 
-            {/* Conteúdo */}
             <div className="space-y-6 mb-8">
               <div className="bg-primary/10 dark:bg-primary/20 rounded-xl p-6 border border-primary/20">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                  O que são Múltiplas Inteligências?
+                  {t('tests.multipleIntelligences.intro.whatIs')}
                 </h2>
                 <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                  A teoria das Múltiplas Inteligências, desenvolvida por Howard Gardner, propõe que a inteligência não é uma capacidade única, mas sim um conjunto de 8 habilidades distintas que todos possuímos em diferentes níveis. Este teste ajuda você a identificar suas inteligências mais fortes.
+                  {t('tests.multipleIntelligences.intro.whatIsDesc')}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { icon: '3d_rotation', name: 'Espacial', desc: 'Visualizar e manipular objetos' },
-                  { icon: 'calculate', name: 'Lógico-Matemática', desc: 'Raciocínio e resolução de problemas' },
-                  { icon: 'menu_book', name: 'Linguística', desc: 'Linguagem escrita e falada' },
-                  { icon: 'music_note', name: 'Musical', desc: 'Perceber e criar música' },
-                  { icon: 'directions_run', name: 'Corporal-Cinestésica', desc: 'Usar o corpo habilidosamente' },
-                  { icon: 'groups', name: 'Interpessoal', desc: 'Compreender outras pessoas' },
-                  { icon: 'self_improvement', name: 'Intrapessoal', desc: 'Autoconhecimento' },
-                  { icon: 'park', name: 'Naturalista', desc: 'Sensibilidade ao mundo natural' }
-                ].map((type, idx) => (
+                {(t('tests.multipleIntelligences.intro.types', { returnObjects: true }) || []).map((type, idx) => (
                   <div key={idx} className="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-primary text-xl">{type.icon}</span>
@@ -326,42 +248,41 @@ const MultipleIntelligencesTest = () => {
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
                 <h3 className="font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                   <span className="material-symbols-outlined text-blue-600">info</span>
-                  Informações sobre o teste
+                  {t('tests.multipleIntelligences.intro.infoTitle')}
                 </h3>
                 <ul className="space-y-2 text-slate-700 dark:text-slate-300">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Duração:</strong> Aproximadamente 15-20 minutos</span>
+                    <span><strong>{t('tests.multipleIntelligences.intro.duration')}</strong> {t('tests.multipleIntelligences.intro.durationText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Questões:</strong> 40 afirmações divididas em 8 categorias</span>
+                    <span><strong>{t('tests.multipleIntelligences.intro.questionsCount')}</strong> {t('tests.multipleIntelligences.intro.questionsCountText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span><strong>Objetivo:</strong> Identificar suas inteligências mais desenvolvidas</span>
+                    <span><strong>{t('tests.multipleIntelligences.intro.objective')}</strong> {t('tests.multipleIntelligences.intro.objectiveText')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
-                    <span>Avalie cada afirmação em uma escala de 1 a 5</span>
+                    <span>{t('tests.multipleIntelligences.intro.honesty')}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Botões */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/')}
                 className="px-6 py-3 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
-                Voltar
+                {t('tests.multipleIntelligences.intro.backButton')}
               </button>
               <button
                 onClick={() => setHasStarted(true)}
                 className="px-8 py-3 rounded-lg bg-[#6152BD] text-white font-bold hover:shadow-lg transform hover:scale-105 transition-all"
               >
-                Iniciar Teste
+                {t('tests.multipleIntelligences.intro.startButton')}
               </button>
             </div>
           </div>
@@ -374,9 +295,9 @@ const MultipleIntelligencesTest = () => {
     <FormLayout currentStep={currentStep} totalSteps={8} progress={progress}>
       {/* Header */}
       <TestHeader
-        testNumber="Múltiplas Inteligências"
-        title="Descubra Suas Múltiplas Inteligências"
-        objective="Baseado na teoria de Howard Gardner, este teste identifica seus pontos fortes e como você pode aplicá-los em sua vida profissional."
+        testNumber={t('tests.multipleIntelligences.header.testNumber')}
+        title={t('tests.multipleIntelligences.header.title')}
+        objective={t('tests.multipleIntelligences.header.objective')}
         currentStep={currentStep}
         stepTitle={stepTitles[currentStep]}
         savedResults={savedResults}
