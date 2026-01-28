@@ -1,9 +1,38 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+
+class AssessmentResultsErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // eslint-disable-next-line no-console
+    console.error('AssessmentResultsModal render error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      if (typeof this.props.fallbackRender === 'function') {
+        return this.props.fallbackRender(this.state.error)
+      }
+      return this.props.fallback || null
+    }
+    return this.props.children
+  }
+}
 
 const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
-  if (!isOpen) return null
+  const { t, i18n } = useTranslation()
 
   const [expandedSections, setExpandedSections] = React.useState({})
+
+  if (!isOpen) return null
 
   const toggleSection = (key) => {
     setExpandedSections(prev => ({
@@ -14,7 +43,8 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('pt-BR', {
+    const locale = i18n.language === 'pt' ? 'pt-BR' : 'en-US'
+    return date.toLocaleDateString(locale, {
       day: '2-digit',
       month: 'long',
       year: 'numeric',
@@ -26,32 +56,43 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
   const renderDISCResults = (results) => {
     if (!results) return null
     
+    const isPt = i18n.language === 'pt'
+    
     const overviewContent = {
-      intro: 'Descubra seu perfil de personalidade e entenda melhor seu estilo de trabalho e relacionamento.',
-      question: 'O que é o DISC?',
-      description: 'O DISC é uma ferramenta de avaliação comportamental que identifica quatro estilos principais e ajuda você a compreender como prefere agir, comunicar e tomar decisões em diferentes contextos.',
-      dimensions: [
+      intro: t('tests.resultsModal.disc.intro'),
+      question: t('tests.resultsModal.disc.whatIs'),
+      description: t('tests.resultsModal.disc.description'),
+      dimensions: isPt ? [
         { key: 'D', title: 'Dominância', description: 'Orientado para resultados, direto e decidido.' },
         { key: 'I', title: 'Influência', description: 'Sociável, persuasivo e otimista.' },
         { key: 'S', title: 'Estabilidade', description: 'Calmo, paciente e leal.' },
         { key: 'C', title: 'Conformidade', description: 'Preciso, analítico e sistemático.' }
+      ] : [
+        { key: 'D', title: 'Dominance', description: 'Results-oriented, direct and decisive.' },
+        { key: 'I', title: 'Influence', description: 'Sociable, persuasive and optimistic.' },
+        { key: 'S', title: 'Steadiness', description: 'Stable, patient and loyal.' },
+        { key: 'C', title: 'Conscientiousness', description: 'Accurate, analytical and systematic.' }
       ]
     }
     
     const types = [
       {
         key: 'D',
-        name: 'Dominância',
-        description: 'Pessoas objetivas, assertivas e orientadas a resultados.',
+        name: isPt ? 'Dominância' : 'Dominance',
+        description: isPt ? 'Pessoas objetivas, assertivas e orientadas a resultados.' : 'Objective, assertive and results-oriented people.',
         details: {
-          paragraphs: [
+          paragraphs: isPt ? [
             'Pessoas com alta Dominância são objetivas, assertivas e orientadas a resultados.',
             'Têm facilidade para tomar decisões rápidas, enfrentar desafios e liderar sob pressão.',
             'São movidas por metas, poder e superação.'
+          ] : [
+            'People with high Dominance are objective, assertive and results-oriented.',
+            'They have ease making quick decisions, facing challenges and leading under pressure.',
+            'They are driven by goals, power and overcoming.'
           ],
-          characteristics: ['Liderança natural', 'Foco em resultados', 'Coragem', 'Competitividade'],
-          challenges: ['Impaciência', 'Tendência ao autoritarismo', 'Dificuldade em ouvir'],
-          areas: ['Administração', 'Empreendedorismo', 'Engenharia', 'Gestão de Projetos', 'Vendas Estratégicas', 'Direito', 'Consultoria Empresarial', 'Marketing de Performance', 'Logística', 'Tecnologia da Informação']
+          characteristics: isPt ? ['Liderança natural', 'Foco em resultados', 'Coragem', 'Competitividade'] : ['Natural leadership', 'Results focus', 'Courage', 'Competitiveness'],
+          challenges: isPt ? ['Impaciência', 'Tendência ao autoritarismo', 'Dificuldade em ouvir'] : ['Impatience', 'Tendency to authoritarianism', 'Difficulty listening'],
+          areas: isPt ? ['Administração', 'Empreendedorismo', 'Engenharia', 'Gestão de Projetos', 'Vendas Estratégicas', 'Direito', 'Consultoria Empresarial', 'Marketing de Performance', 'Logística', 'Tecnologia da Informação'] : ['Administration', 'Entrepreneurship', 'Engineering', 'Project Management', 'Strategic Sales', 'Law', 'Business Consulting', 'Performance Marketing', 'Logistics', 'Information Technology']
         },
         styles: {
           dominantCard: 'bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800',
@@ -63,17 +104,21 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
       },
       {
         key: 'I',
-        name: 'Influência',
-        description: 'Pessoas comunicativas, entusiasmadas e sociáveis.',
+        name: isPt ? 'Influência' : 'Influence',
+        description: isPt ? 'Pessoas comunicativas, entusiasmadas e sociáveis.' : 'Communicative, enthusiastic and sociable people.',
         details: {
-          paragraphs: [
+          paragraphs: isPt ? [
             'Pessoas com alta Influência são comunicativas, entusiasmadas e sociáveis.',
             'Têm talento para motivar, inspirar e engajar outras pessoas, transmitindo energia positiva.',
             'Valorizam o reconhecimento, o contato humano e ambientes colaborativos.'
+          ] : [
+            'People with high Influence are communicative, enthusiastic and sociable.',
+            'They have talent for motivating, inspiring and engaging other people, transmitting positive energy.',
+            'They value recognition, human contact and collaborative environments.'
           ],
-          characteristics: ['Otimismo', 'Carisma', 'Persuasão', 'Empatia'],
-          challenges: ['Dispersão', 'Dificuldade com rotinas', 'Desafio em cumprir prazos rígidos'],
-          areas: ['Comunicação Social', 'Jornalismo', 'Publicidade e Propaganda', 'Recursos Humanos', 'Vendas', 'Relações Públicas', 'Docência', 'Coaching', 'Produção Cultural', 'Gestão de Pessoas']
+          characteristics: isPt ? ['Otimismo', 'Carisma', 'Persuasão', 'Empatia'] : ['Optimism', 'Charisma', 'Persuasion', 'Empathy'],
+          challenges: isPt ? ['Dispersão', 'Dificuldade com rotinas', 'Desafio em cumprir prazos rígidos'] : ['Distraction', 'Difficulty with routines', 'Challenge meeting strict deadlines'],
+          areas: isPt ? ['Comunicação Social', 'Jornalismo', 'Publicidade e Propaganda', 'Recursos Humanos', 'Vendas', 'Relações Públicas', 'Docência', 'Coaching', 'Produção Cultural', 'Gestão de Pessoas'] : ['Social Communication', 'Journalism', 'Advertising', 'Human Resources', 'Sales', 'Public Relations', 'Teaching', 'Coaching', 'Cultural Production', 'People Management']
         },
         styles: {
           dominantCard: 'bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800',
@@ -85,17 +130,21 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
       },
       {
         key: 'S',
-        name: 'Estabilidade',
-        description: 'Pessoas calmas, pacientes e leais.',
+        name: isPt ? 'Estabilidade' : 'Steadiness',
+        description: isPt ? 'Pessoas calmas, pacientes e leais.' : 'Calm, patient and loyal people.',
         details: {
-          paragraphs: [
+          paragraphs: isPt ? [
             'Pessoas com alta Estabilidade são calmas, pacientes e leais.',
             'Gostam de ambientes seguros e previsíveis, destacando-se em tarefas que exigem constância e empatia.',
             'Valorizam o trabalho em equipe e relações de confiança duradouras.'
+          ] : [
+            'People with high Steadiness are calm, patient and loyal.',
+            'They like safe and predictable environments, excelling in tasks that require constancy and empathy.',
+            'They value teamwork and lasting trust relationships.'
           ],
-          characteristics: ['Tranquilidade', 'Empatia', 'Escuta ativa', 'Apoio aos outros'],
-          challenges: ['Resistência a mudanças', 'Dificuldade em dizer "não"'],
-          areas: ['Enfermagem', 'Psicologia', 'Serviço Social', 'Educação Infantil', 'Recursos Humanos', 'Terapias Integrativas', 'Administração', 'Pedagogia', 'Gestão de Pessoas', 'Atendimento ao Cliente']
+          characteristics: isPt ? ['Tranquilidade', 'Empatia', 'Escuta ativa', 'Apoio aos outros'] : ['Tranquility', 'Empathy', 'Active listening', 'Support for others'],
+          challenges: isPt ? ['Resistência a mudanças', 'Dificuldade em dizer "não"'] : ['Resistance to change', 'Difficulty saying "no"'],
+          areas: isPt ? ['Enfermagem', 'Psicologia', 'Serviço Social', 'Educação Infantil', 'Recursos Humanos', 'Terapias Integrativas', 'Administração', 'Pedagogia', 'Gestão de Pessoas', 'Atendimento ao Cliente'] : ['Nursing', 'Psychology', 'Social Work', 'Early Childhood Education', 'Human Resources', 'Integrative Therapies', 'Administration', 'Pedagogy', 'People Management', 'Customer Service']
         },
         styles: {
           dominantCard: 'bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800',
@@ -107,17 +156,21 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
       },
       {
         key: 'C',
-        name: 'Conformidade',
-        description: 'Pessoas analíticas, detalhistas e disciplinadas.',
+        name: isPt ? 'Conformidade' : 'Conscientiousness',
+        description: isPt ? 'Pessoas analíticas, detalhistas e disciplinadas.' : 'Analytical, detail-oriented and disciplined people.',
         details: {
-          paragraphs: [
+          paragraphs: isPt ? [
             'Pessoas com alta Conformidade são analíticas, detalhistas e disciplinadas.',
             'Valorizam regras, qualidade e precisão, buscando sempre fazer o certo da forma correta.',
             'São movidas por segurança, lógica e padrões bem definidos.'
+          ] : [
+            'People with high Conscientiousness are analytical, detail-oriented and disciplined.',
+            'They value rules, quality and precision, always seeking to do things the right way.',
+            'They are driven by security, logic and well-defined standards.'
           ],
-          characteristics: ['Organização', 'Pensamento crítico', 'Responsabilidade', 'Perfeccionismo'],
-          challenges: ['Rigidez', 'Excesso de autocrítica', 'Medo de errar'],
-          areas: ['Contabilidade', 'Engenharia', 'Auditoria', 'Direito', 'Análise de Dados', 'Pesquisa Científica', 'Arquitetura', 'Tecnologia da Informação', 'Planejamento Financeiro', 'Qualidade e Processos']
+          characteristics: isPt ? ['Organização', 'Pensamento crítico', 'Responsabilidade', 'Perfeccionismo'] : ['Organization', 'Critical thinking', 'Responsibility', 'Perfectionism'],
+          challenges: isPt ? ['Rigidez', 'Excesso de autocrítica', 'Medo de errar'] : ['Rigidity', 'Excessive self-criticism', 'Fear of making mistakes'],
+          areas: isPt ? ['Contabilidade', 'Engenharia', 'Auditoria', 'Direito', 'Análise de Dados', 'Pesquisa Científica', 'Arquitetura', 'Tecnologia da Informação', 'Planejamento Financeiro', 'Qualidade e Processos'] : ['Accounting', 'Engineering', 'Auditing', 'Law', 'Data Analysis', 'Scientific Research', 'Architecture', 'Information Technology', 'Financial Planning', 'Quality and Processes']
         },
         styles: {
           dominantCard: 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800',
@@ -132,6 +185,8 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
     // Encontra o tipo dominante
     const dominant = Object.entries(results).reduce((a, b) => a[1] > b[1] ? a : b)
     const dominantType = types.find(t => t.key === dominant[0])
+    
+    if (!dominantType) return null
 
     return (
       <div className="space-y-6">
@@ -143,9 +198,9 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                Seu Perfil: {dominantType.name}
+                {t('tests.resultsModal.disc.yourProfile')}: {dominantType.name}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">{dominant[1]}% dominância</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">{dominant[1]}% {t('tests.resultsModal.disc.dominance')}</p>
             </div>
           </div>
           <p className="text-sm text-slate-700 dark:text-slate-300">
@@ -162,10 +217,10 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           >
             <div>
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
-                Entenda o Modelo DISC
+                {t('tests.resultsModal.disc.understandModel')}
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                Clique para visualizar uma explicação completa sobre o teste e seus pilares.
+                {t('tests.resultsModal.disc.clickToView')}
               </p>
             </div>
             <span
@@ -211,7 +266,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
         {/* Distribuição Completa */}
         <div>
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            Distribuição Completa
+            {t('tests.resultsModal.disc.fullDistribution')}
           </h4>
           <div className="space-y-3">
             {types.map(type => (
@@ -270,7 +325,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
                     <div>
                       <p className="font-semibold text-slate-900 dark:text-white mb-1">
-                        Características em destaque
+                        {t('tests.resultsModal.disc.characteristics')}
                       </p>
                       <ul className="list-disc list-inside space-y-1">
                         {type.details.characteristics.map((item, idx) => (
@@ -281,7 +336,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
                     <div>
                       <p className="font-semibold text-slate-900 dark:text-white mb-1">
-                        Desafios comuns
+                        {t('tests.resultsModal.disc.challenges')}
                       </p>
                       <ul className="list-disc list-inside space-y-1">
                         {type.details.challenges.map((item, idx) => (
@@ -292,7 +347,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
                     <div>
                       <p className="font-semibold text-slate-900 dark:text-white mb-1">
-                        Áreas e profissões sugeridas
+                        {t('tests.resultsModal.disc.suggestedAreas')}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {type.details.areas.map(area => (
@@ -324,23 +379,23 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
         <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">person</span>
-            Informações Pessoais
+            {t('tests.resultsModal.anamnese.personalInfo')}
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="text-slate-500 dark:text-slate-400">Nome:</span>
+              <span className="text-slate-500 dark:text-slate-400">{t('tests.resultsModal.anamnese.name')}:</span>
               <p className="font-semibold text-slate-900 dark:text-white">{data.nomeCompleto}</p>
             </div>
             <div>
-              <span className="text-slate-500 dark:text-slate-400">Idade:</span>
-              <p className="font-semibold text-slate-900 dark:text-white">{data.idade} anos</p>
+              <span className="text-slate-500 dark:text-slate-400">{t('tests.resultsModal.anamnese.age')}:</span>
+              <p className="font-semibold text-slate-900 dark:text-white">{data.idade} {i18n.language === 'pt' ? 'anos' : 'years'}</p>
             </div>
             <div>
-              <span className="text-slate-500 dark:text-slate-400">Localização:</span>
+              <span className="text-slate-500 dark:text-slate-400">{t('tests.resultsModal.anamnese.location')}:</span>
               <p className="font-semibold text-slate-900 dark:text-white">{data.cidadeEstado}</p>
             </div>
             <div>
-              <span className="text-slate-500 dark:text-slate-400">E-mail:</span>
+              <span className="text-slate-500 dark:text-slate-400">{t('tests.resultsModal.anamnese.email')}:</span>
               <p className="font-semibold text-slate-900 dark:text-white text-xs">{data.email}</p>
             </div>
           </div>
@@ -351,12 +406,12 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-2">
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">school</span>
-              Escolaridade
+              {t('tests.resultsModal.anamnese.education')}
             </h4>
             <p className="text-sm text-slate-900 dark:text-white">{data.nivelEscolaridade}</p>
             {data.areaEstudo && (
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Área: {data.areaEstudo}
+                {t('tests.resultsModal.anamnese.area')}: {data.areaEstudo}
               </p>
             )}
           </div>
@@ -367,12 +422,12 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-2">
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">work</span>
-              Situação Profissional
+              {t('tests.resultsModal.anamnese.professionalSituation')}
             </h4>
             <p className="text-sm text-slate-900 dark:text-white">{data.situacaoProfissional}</p>
             {data.ocupacaoAtual && (
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Ocupação: {data.ocupacaoAtual}
+                {t('tests.resultsModal.anamnese.occupation')}: {data.ocupacaoAtual}
               </p>
             )}
           </div>
@@ -383,7 +438,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">interests</span>
-              Áreas de Interesse
+              {t('tests.resultsModal.anamnese.areasOfInterest')}
             </h4>
             <div className="flex flex-wrap gap-2">
               {data.areasInteresse.map((area, idx) => (
@@ -400,7 +455,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">flag</span>
-              Objetivos de Carreira
+              {t('tests.resultsModal.anamnese.careerGoals')}
             </h4>
             <div className="flex flex-wrap gap-2">
               {data.objetivosCarreira.map((objetivo, idx) => (
@@ -498,101 +553,84 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
     if (!results) return null
     
     const overview = {
-      title: 'Teoria das Inteligências Múltiplas — Howard Gardner',
-      paragraphs: [
-        'O psicólogo norte-americano Howard Gardner propôs que a inteligência não é algo único e mensurável como nos testes tradicionais de QI. Em vez disso, ela se manifesta como um conjunto de habilidades cognitivas, emocionais e criativas que cada pessoa possui em diferentes intensidades.',
-        'Essa teoria reconhece que todas as pessoas são inteligentes — mas de maneiras distintas. Entender suas inteligências predominantes ajuda a tomar decisões de carreira, desenvolver competências estratégicas e escolher formas mais eficazes de aprender e atuar no mundo.'
-      ]
+      title: i18n.language === 'pt' 
+        ? 'Teoria das Inteligências Múltiplas — Howard Gardner'
+        : 'Theory of Multiple Intelligences — Howard Gardner',
+      paragraphs: i18n.language === 'pt' 
+        ? [
+            'O psicólogo norte-americano Howard Gardner propôs que a inteligência não é algo único e mensurável como nos testes tradicionais de QI. Em vez disso, ela se manifesta como um conjunto de habilidades cognitivas, emocionais e criativas que cada pessoa possui em diferentes intensidades.',
+            'Essa teoria reconhece que todas as pessoas são inteligentes — mas de maneiras distintas. Entender suas inteligências predominantes ajuda a tomar decisões de carreira, desenvolver competências estratégicas e escolher formas mais eficazes de aprender e atuar no mundo.'
+          ]
+        : [
+            'American psychologist Howard Gardner proposed that intelligence is not a single, measurable thing like traditional IQ tests suggest. Instead, it manifests as a set of cognitive, emotional, and creative abilities that each person possesses in different intensities.',
+            'This theory recognizes that all people are intelligent—but in different ways. Understanding your predominant intelligences helps make career decisions, develop strategic competencies, and choose more effective ways to learn and act in the world.'
+          ]
     }
     
     const intelligences = [
       { 
         key: 'logica', 
-        name: 'Lógico-Matemática', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.logica.name'),
         icon: 'calculate', 
-        description: 'Capacidade de raciocínio lógico, análise de padrões e resolução de problemas.',
-        details: [
-          'Pessoas com essa inteligência gostam de organizar, calcular e entender como as coisas funcionam.',
-          'Têm afinidade com números, experimentos e ambientes que estimulam a análise estruturada.'
-        ],
-        professions: ['Engenheiro(a)', 'Cientista de Dados', 'Analista Financeiro', 'Estatístico(a)', 'Programador(a)', 'Físico(a)', 'Contador(a)', 'Economista', 'Arquiteto(a)', 'Pesquisador(a)']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.logica.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.logica.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.logica.professions', { returnObjects: true })
       },
       { 
         key: 'linguistica', 
-        name: 'Linguística', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.linguistica.name'),
         icon: 'book', 
-        description: 'Relacionada à habilidade com a linguagem — falar, escrever, ler e se comunicar com clareza.',
-        details: [
-          'Pessoas com alta inteligência linguística se destacam ao contar histórias, argumentar e ensinar.',
-          'Demonstram facilidade em aprender idiomas, construir discursos e adaptar mensagens a diferentes públicos.'
-        ],
-        professions: ['Jornalista', 'Escritor(a)', 'Professor(a)', 'Advogado(a)', 'Publicitário(a)', 'Revisor(a)', 'Roteirista', 'Radialista', 'Copywriter', 'Tradutor(a)']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.linguistica.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.linguistica.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.linguistica.professions', { returnObjects: true })
       },
       { 
         key: 'espacial', 
-        name: 'Espacial', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.espacial.name'),
         icon: 'palette', 
-        description: 'Capacidade de visualizar formas, cores e espaços em três dimensões, com alto senso estético.',
-        details: [
-          'Pessoas com essa inteligência percebem detalhes visuais e conseguem imaginar objetos sob diferentes perspectivas.',
-          'Têm facilidade para planejar ambientes, interpretar mapas, criar imagens e trabalhar com design.'
-        ],
-        professions: ['Designer Gráfico', 'Arquiteto(a)', 'Urbanista', 'Fotógrafo(a)', 'Ilustrador(a)', 'Designer de Interiores', 'Engenheiro(a) Civil', 'Piloto(a)', 'Videomaker', 'Artista Visual']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.espacial.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.espacial.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.espacial.professions', { returnObjects: true })
       },
       { 
         key: 'musical', 
-        name: 'Musical', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.musical.name'),
         icon: 'music_note', 
-        description: 'Sensibilidade a sons, ritmos e melodias, com foco em harmonia, composição e emoção sonora.',
-        details: [
-          'Pessoas com inteligência musical identificam padrões auditivos, reconhecem notas e entendem como a música influencia emoções.',
-          'Têm facilidade para aprender instrumentos, cantar, compor e explorar diferentes estilos musicais.'
-        ],
-        professions: ['Músico(a)', 'Produtor(a) musical', 'Compositor(a)', 'Técnico(a) de som', 'Maestro(a)', 'Professor(a) de música', 'DJ', 'Cantor(a)', 'Crítico(a) musical', 'Terapeuta musical']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.musical.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.musical.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.musical.professions', { returnObjects: true })
       },
       { 
         key: 'corporal', 
-        name: 'Corporal-Cinestésica', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.corporal.name'),
         icon: 'directions_run', 
-        description: 'Uso criativo e preciso do corpo, com aprendizagem baseada na prática e no movimento.',
-        details: [
-          'Pessoas com essa inteligência aprendem fazendo, manipulando objetos e explorando o ambiente físico.',
-          'Demonstram coordenação, destreza e controle corporal em atividades esportivas, artísticas ou técnicas.'
-        ],
-        professions: ['Atleta', 'Dançarino(a)', 'Fisioterapeuta', 'Personal Trainer', 'Cirurgião(ã)', 'Ator/Atriz', 'Coreógrafo(a)', 'Professor(a) de Educação Física', 'Massoterapeuta', 'Artesão(ã)']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.corporal.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.corporal.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.corporal.professions', { returnObjects: true })
       },
       { 
         key: 'interpessoal', 
-        name: 'Interpessoal', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.interpessoal.name'),
         icon: 'groups', 
-        description: 'Habilidade de compreender e se conectar com outras pessoas com empatia e colaboração.',
-        details: [
-          'Pessoas com alta inteligência interpessoal entendem sentimentos alheios e facilitam o trabalho em equipe.',
-          'São referência em comunicação, mediação de conflitos e liderança baseada em relacionamentos.'
-        ],
-        professions: ['Psicólogo(a)', 'Professor(a)', 'Líder Comunitário', 'Gestor(a) de RH', 'Assistente Social', 'Coach', 'Mediador(a)', 'Vendedor(a)', 'Enfermeiro(a)', 'Relações Públicas']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.interpessoal.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.interpessoal.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.interpessoal.professions', { returnObjects: true })
       },
       { 
         key: 'intrapessoal', 
-        name: 'Intrapessoal', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.intrapessoal.name'),
         icon: 'self_improvement', 
-        description: 'Voltada ao autoconhecimento — compreender emoções, valores e motivações pessoais.',
-        details: [
-          'Pessoas introspectivas e reflexivas usam essa inteligência para definir metas coerentes com seus princípios.',
-          'Têm clareza sobre pontos fortes, limitações e buscam constantemente crescimento pessoal.'
-        ],
-        professions: ['Psicoterapeuta', 'Filósofo(a)', 'Escritor(a)', 'Artista', 'Pesquisador(a)', 'Consultor(a) de carreira', 'Professor(a)', 'Coach de vida', 'Instrutor(a) de mindfulness', 'Empreendedor(a)']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.intrapessoal.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.intrapessoal.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.intrapessoal.professions', { returnObjects: true })
       },
       { 
         key: 'naturalista', 
-        name: 'Naturalista', 
+        name: t('tests.resultsModal.multipleIntelligences.intelligences.naturalista.name'),
         icon: 'nature', 
-        description: 'Relacionada à compreensão da natureza, dos ecossistemas e da sustentabilidade.',
-        details: [
-          'Pessoas com inteligência naturalista observam padrões no meio ambiente e se conectam com temas ecológicos.',
-          'Demonstram interesse por biologia, cuidado com seres vivos e conservação dos recursos naturais.'
-        ],
-        professions: ['Biólogo(a)', 'Veterinário(a)', 'Agrônomo(a)', 'Ecólogo(a)', 'Geógrafo(a)', 'Engenheiro(a) Ambiental', 'Oceanógrafo(a)', 'Paisagista', 'Educador(a) Ambiental', 'Botânico(a)']
+        description: t('tests.resultsModal.multipleIntelligences.intelligences.naturalista.description'),
+        details: t('tests.resultsModal.multipleIntelligences.intelligences.naturalista.details', { returnObjects: true }),
+        professions: t('tests.resultsModal.multipleIntelligences.intelligences.naturalista.professions', { returnObjects: true })
       }
     ]
 
@@ -667,7 +705,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
         <div>
                 <p className="font-semibold text-slate-900 dark:text-white mb-2">
-                  Profissões em que pode se destacar
+                  {t('tests.resultsModal.multipleIntelligences.professions')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {intelligence.professions.map(profession => (
@@ -699,7 +737,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
                 {overview.title}
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                Clique para entender o modelo e como aplicá-lo à sua trajetória.
+                {t('tests.resultsModal.multipleIntelligences.clickToUnderstand')}
               </p>
             </div>
             <span
@@ -723,7 +761,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            🏆 Suas 3 Inteligências Dominantes
+            {t('tests.resultsModal.multipleIntelligences.yourTop3')}
           </h4>
           {top3.map((key, idx) => {
             const intelligence = intelligences.find(intel => intel.key === key)
@@ -735,7 +773,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
         {remaining.length > 0 && (
           <div>
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              📊 Outras Inteligências no Seu Perfil
+              {t('tests.resultsModal.multipleIntelligences.otherIntelligences')}
             </h4>
             <div className="space-y-3">
               {remaining.map(intelligence => renderIntelligenceCard(intelligence))}
@@ -750,102 +788,89 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
     if (!results) return null
     
     const overview = {
-      title: 'Teste RIASEC — Tipos de Personalidade Profissional',
-      paragraphs: [
-        'O modelo RIASEC, criado por John Holland, ajuda a identificar o tipo de ambiente profissional que mais combina com cada pessoa. Ele se baseia em seis perfis — Realista, Investigativo, Artístico, Social, Empreendedor e Convencional — e mostra como nossos interesses, valores e habilidades se conectam com diferentes áreas de trabalho.',
-        'Compreender seu tipo RIASEC é essencial para fazer escolhas mais conscientes, encontrar carreiras alinhadas ao seu perfil pessoal e aumentar a satisfação e o desempenho no futuro profissional.'
-      ]
+      title: t('tests.resultsModal.riasec.title'),
+      paragraphs: i18n.language === 'pt'
+        ? [
+            'O modelo RIASEC, criado por John Holland, ajuda a identificar o tipo de ambiente profissional que mais combina com cada pessoa. Ele se baseia em seis perfis — Realista, Investigativo, Artístico, Social, Empreendedor e Convencional — e mostra como nossos interesses, valores e habilidades se conectam com diferentes áreas de trabalho.',
+            'Compreender seu tipo RIASEC é essencial para fazer escolhas mais conscientes, encontrar carreiras alinhadas ao seu perfil pessoal e aumentar a satisfação e o desempenho no futuro profissional.'
+          ]
+        : [
+            'The RIASEC model, created by John Holland, helps identify the type of professional environment that best fits each person. It is based on six profiles—Realistic, Investigative, Artistic, Social, Enterprising, and Conventional—and shows how our interests, values, and skills connect with different areas of work.',
+            'Understanding your RIASEC type is essential for making more conscious choices, finding careers aligned with your personal profile, and increasing satisfaction and performance in your professional future.'
+          ]
     }
     
     const profiles = [
       { 
         key: 'R', 
-        name: 'Realista', 
+        name: t('tests.resultsModal.riasec.profiles.R.name'),
         icon: 'construction', 
-        description: 'Pessoas práticas, objetivas e com habilidades manuais.',
+        description: t('tests.resultsModal.riasec.profiles.R.description'),
         details: {
-          paragraphs: [
-            'Pessoas práticas, objetivas e com habilidades manuais. Gostam de trabalhar com ferramentas, máquinas, animais ou atividades físicas.',
-            'Preferem tarefas concretas e ambientes estruturados, onde possam fazer acontecer de forma tangível.'
-          ],
-          characteristics: ['Eficiência', 'Persistência', 'Foco em resultados', 'Ação direta'],
-          challenges: ['Dificuldade em lidar com abstrações ou ambientes muito teóricos'],
-          areas: ['Engenharia Mecânica', 'Eletrônica', 'Arquitetura', 'Design de Produto', 'Agronomia', 'Enfermagem', 'Técnico em Manutenção', 'Construção Civil', 'Logística', 'Gastronomia']
+          paragraphs: t('tests.resultsModal.riasec.profiles.R.paragraphs', { returnObjects: true }),
+          characteristics: t('tests.resultsModal.riasec.profiles.R.characteristics', { returnObjects: true }),
+          challenges: t('tests.resultsModal.riasec.profiles.R.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.riasec.profiles.R.areas', { returnObjects: true })
         }
       },
       { 
         key: 'I', 
-        name: 'Investigativo', 
+        name: t('tests.resultsModal.riasec.profiles.I.name'),
         icon: 'science', 
-        description: 'Pessoas analíticas, curiosas e racionais.',
+        description: t('tests.resultsModal.riasec.profiles.I.description'),
         details: {
-          paragraphs: [
-            'Pessoas analíticas, curiosas e racionais, com interesse em compreender fenômenos complexos.',
-            'Gostam de pesquisar, analisar e resolver problemas por meio da observação e da lógica, valorizando o conhecimento e o pensamento crítico.'
-          ],
-          characteristics: ['Curiosidade intelectual', 'Autonomia', 'Precisão', 'Reflexão'],
-          challenges: ['Tendência ao isolamento', 'Dificuldade em tarefas muito práticas'],
-          areas: ['Medicina', 'Biologia', 'Psicologia', 'Engenharia de Dados', 'Pesquisa Científica', 'Estatística', 'Análise de Sistemas', 'Química', 'Ciências Atuariais', 'Tecnologia da Informação']
+          paragraphs: t('tests.resultsModal.riasec.profiles.I.paragraphs', { returnObjects: true }),
+          characteristics: t('tests.resultsModal.riasec.profiles.I.characteristics', { returnObjects: true }),
+          challenges: t('tests.resultsModal.riasec.profiles.I.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.riasec.profiles.I.areas', { returnObjects: true })
         }
       },
       { 
         key: 'A', 
-        name: 'Artístico', 
+        name: t('tests.resultsModal.riasec.profiles.A.name'),
         icon: 'palette', 
-        description: 'Pessoas criativas, expressivas e intuitivas.',
+        description: t('tests.resultsModal.riasec.profiles.A.description'),
         details: {
-          paragraphs: [
-            'Pessoas criativas, expressivas e intuitivas, que valorizam a originalidade e a estética.',
-            'Buscam ambientes livres e flexíveis para experimentar, inovar e expressar ideias por meio da arte, escrita, design, música ou comunicação.'
-          ],
-          characteristics: ['Sensibilidade', 'Imaginação', 'Liberdade', 'Expressão pessoal'],
-          challenges: ['Dificuldade com regras rígidas', 'Resistência a rotinas excessivas'],
-          areas: ['Design Gráfico', 'Arquitetura', 'Publicidade', 'Moda', 'Fotografia', 'Cinema', 'Artes Visuais', 'Jornalismo', 'Produção Cultural', 'Música']
+          paragraphs: t('tests.resultsModal.riasec.profiles.A.paragraphs', { returnObjects: true }),
+          characteristics: t('tests.resultsModal.riasec.profiles.A.characteristics', { returnObjects: true }),
+          challenges: t('tests.resultsModal.riasec.profiles.A.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.riasec.profiles.A.areas', { returnObjects: true })
         }
       },
       { 
         key: 'S', 
-        name: 'Social', 
+        name: t('tests.resultsModal.riasec.profiles.S.name'),
         icon: 'groups', 
-        description: 'Pessoas empáticas, comunicativas e colaborativas.',
+        description: t('tests.resultsModal.riasec.profiles.S.description'),
         details: {
-          paragraphs: [
-            'Pessoas empáticas, comunicativas e colaborativas, que se sentem realizadas ao ajudar, ensinar ou orientar os outros.',
-            'Têm alta inteligência emocional e se destacam em papéis de apoio, ensino e cuidado humano.'
-          ],
-          characteristics: ['Paciência', 'Sensibilidade', 'Escuta ativa', 'Senso de comunidade'],
-          challenges: ['Dificuldade em lidar com conflitos intensos', 'Desafios em decisões estritamente racionais'],
-          areas: ['Psicologia', 'Pedagogia', 'Serviço Social', 'Fisioterapia', 'Medicina', 'Enfermagem', 'Recursos Humanos', 'Coaching', 'Educação Física', 'Orientação Profissional']
+          paragraphs: t('tests.resultsModal.riasec.profiles.S.paragraphs', { returnObjects: true }),
+          characteristics: t('tests.resultsModal.riasec.profiles.S.characteristics', { returnObjects: true }),
+          challenges: t('tests.resultsModal.riasec.profiles.S.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.riasec.profiles.S.areas', { returnObjects: true })
         }
       },
       { 
         key: 'E', 
-        name: 'Empreendedor', 
+        name: t('tests.resultsModal.riasec.profiles.E.name'),
         icon: 'trending_up', 
-        description: 'Pessoas inovadoras, ambiciosas e comunicativas.',
+        description: t('tests.resultsModal.riasec.profiles.E.description'),
         details: {
-          paragraphs: [
-            'Pessoas inovadoras, ambiciosas e comunicativas, que gostam de liderar, influenciar e criar impacto.',
-            'Sentem-se motivadas por desafios, poder de decisão e reconhecimento, valorizando ambientes dinâmicos e resultados rápidos.'
-          ],
-          characteristics: ['Liderança', 'Persuasão', 'Iniciativa', 'Visão estratégica'],
-          challenges: ['Impaciência', 'Aversão a detalhes operacionais'],
-          areas: ['Administração', 'Marketing', 'Vendas', 'Direito', 'Relações Públicas', 'Gestão de Negócios', 'Empreendedorismo', 'Consultoria', 'Economia', 'Comunicação Empresarial']
+          paragraphs: t('tests.resultsModal.riasec.profiles.E.paragraphs', { returnObjects: true }),
+          characteristics: t('tests.resultsModal.riasec.profiles.E.characteristics', { returnObjects: true }),
+          challenges: t('tests.resultsModal.riasec.profiles.E.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.riasec.profiles.E.areas', { returnObjects: true })
         }
       },
       { 
         key: 'C', 
-        name: 'Convencional', 
+        name: t('tests.resultsModal.riasec.profiles.C.name'),
         icon: 'checklist', 
-        description: 'Pessoas organizadas, metódicas e responsáveis.',
+        description: t('tests.resultsModal.riasec.profiles.C.description'),
         details: {
-          paragraphs: [
-            'Pessoas organizadas, metódicas e responsáveis, que gostam de trabalhar com dados, sistemas e processos bem definidos.',
-            'Valorizam regras, estabilidade e precisão, sendo excelentes em planejamento, controle e garantia de qualidade.'
-          ],
-          characteristics: ['Disciplina', 'Confiabilidade', 'Atenção aos detalhes', 'Foco em qualidade'],
-          challenges: ['Resistência à mudança', 'Dificuldade em contextos muito improvisados'],
-          areas: ['Contabilidade', 'Administração', 'Finanças', 'Secretariado Executivo', 'Arquivologia', 'Análise de Dados', 'Direito Tributário', 'Banco e Seguros', 'Planejamento', 'Controladoria']
+          paragraphs: t('tests.resultsModal.riasec.profiles.C.paragraphs', { returnObjects: true }),
+          characteristics: t('tests.resultsModal.riasec.profiles.C.characteristics', { returnObjects: true }),
+          challenges: t('tests.resultsModal.riasec.profiles.C.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.riasec.profiles.C.areas', { returnObjects: true })
         }
       }
     ]
@@ -931,7 +956,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
         <div>
                 <p className={`font-semibold mb-1 ${highlight ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                  Características em destaque
+                  {t('tests.resultsModal.riasec.characteristics')}
                 </p>
                 <ul className="list-disc list-inside space-y-1">
                   {profile.details.characteristics.map((item, idx) => (
@@ -942,7 +967,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
                     <div>
                 <p className={`font-semibold mb-1 ${highlight ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                  Desafios comuns
+                  {t('tests.resultsModal.riasec.challenges')}
                 </p>
                 <ul className="list-disc list-inside space-y-1">
                   {profile.details.challenges.map((item, idx) => (
@@ -953,7 +978,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
               <div>
                 <p className={`font-semibold mb-1 ${highlight ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                  Áreas e profissões recomendadas
+                  {t('tests.resultsModal.riasec.recommendedAreas')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {profile.details.areas.map(area => (
@@ -989,7 +1014,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
                 {overview.title}
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                Clique para entender como este modelo orienta escolhas de carreira.
+                {t('tests.resultsModal.riasec.clickToUnderstand')}
               </p>
               </div>
             <span
@@ -1016,7 +1041,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
         {remainingProfiles.length > 0 && (
           <div>
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              📊 Outros Perfis no Seu Código Holland
+              {t('tests.resultsModal.riasec.otherProfiles')}
             </h4>
             <div className="space-y-3">
               {remainingProfiles.map((profile, idx) => renderProfileCard(profile, idx + 1))}
@@ -1027,10 +1052,10 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
         <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-4 border border-primary/20">
           <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">code</span>
-            Seu Código Holland
+            {t('tests.resultsModal.riasec.yourHollandCode')}
           </h4>
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-xs text-slate-600 dark:text-slate-400">Sequência dominante:</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">{t('tests.resultsModal.riasec.dominantSequence')}:</p>
             {sortedProfiles.slice(0, 3).map(profile => (
               <span key={profile.key} className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-bold">
                 {profile.key} - {profile.name}
@@ -1038,7 +1063,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
             ))}
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400 mt-3">
-            O código Holland combina seus três perfis mais altos, revelando uma bússola profissional para orientar decisões de carreira.
+            {t('tests.resultsModal.riasec.hollandCodeDesc')}
           </p>
         </div>
       </div>
@@ -1049,192 +1074,161 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
     if (!results) return null
 
     const overview = {
-      title: 'Teste de Arquétipos — Os Perfis Universais da Jornada Pessoal e Profissional',
-      paragraphs: [
-        'Os arquétipos são padrões universais de comportamento, emoção e pensamento que habitam o inconsciente coletivo, conceito desenvolvido por Carl Gustav Jung.',
-        'Eles representam modelos simbólicos de identidade, influenciando nossas escolhas, relações e caminhos profissionais. Conhecer seus arquétipos predominantes ajuda a alinhar projetos, carreiras e relacionamentos à sua essência.'
-      ]
+      title: t('tests.resultsModal.archetypes.title'),
+      paragraphs: i18n.language === 'pt'
+        ? [
+            'Os arquétipos são padrões universais de comportamento, emoção e pensamento que habitam o inconsciente coletivo, conceito desenvolvido por Carl Gustav Jung.',
+            'Eles representam modelos simbólicos de identidade, influenciando nossas escolhas, relações e caminhos profissionais. Conhecer seus arquétipos predominantes ajuda a alinhar projetos, carreiras e relacionamentos à sua essência.'
+          ]
+        : [
+            'Archetypes are universal patterns of behavior, emotion, and thought that inhabit the collective unconscious, a concept developed by Carl Gustav Jung.',
+            'They represent symbolic models of identity, influencing our choices, relationships, and professional paths. Knowing your predominant archetypes helps align projects, careers, and relationships with your essence.'
+          ]
     }
 
     const archetypes = [
       {
         key: 'inocente',
-        name: 'O Inocente',
+        name: t('tests.resultsModal.archetypes.archetypes.inocente.name'),
         icon: 'sentiment_satisfied',
-        short: 'Busca felicidade, otimismo e simplicidade.',
+        short: t('tests.resultsModal.archetypes.archetypes.inocente.short'),
         details: {
-          paragraphs: [
-            'O Inocente acredita no bem e busca viver com autenticidade, simplicidade e fé na bondade das pessoas.',
-            'Prefere ambientes leves, acolhedores e positivos, onde possa nutrir esperança e inspirar otimismo.'
-          ],
-          strengths: ['Otimismo contagiante', 'Confiança nas pessoas', 'Busca por harmonia', 'Visão positiva da vida'],
-          challenges: ['Ingenuidade em ambientes competitivos', 'Dificuldade em lidar com conflitos', 'Tendência a evitar realidades difíceis'],
-          areas: ['Educação Infantil', 'Hospitalidade', 'Pastoral ou Atividade Religiosa', 'Serviços Comunitários', 'Experiências de Bem-Estar', 'Marketing de Experiências', 'Design de Serviços Humanizados']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.inocente.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.inocente.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.inocente.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.inocente.areas', { returnObjects: true })
         }
       },
       {
         key: 'sabio',
-        name: 'O Sábio',
+        name: t('tests.resultsModal.archetypes.archetypes.sabio.name'),
         icon: 'auto_stories',
-        short: 'Busca verdade, conhecimento e compreensão profunda.',
+        short: t('tests.resultsModal.archetypes.archetypes.sabio.short'),
         details: {
-          paragraphs: [
-            'O Sábio é movido pela curiosidade intelectual, pelo desejo de entender como o mundo funciona e compartilhar sabedoria.',
-            'Valoriza análises profundas, aprendizado contínuo e decisões embasadas em evidências e reflexão.'
-          ],
-          strengths: ['Pensamento crítico', 'Liderança intelectual', 'Tomada de decisão orientada por dados', 'Aprendizado contínuo'],
-          challenges: ['Excesso de análise', 'Perfeccionismo intelectual', 'Dificuldade em agir sem todas as informações'],
-          areas: ['Pesquisa Acadêmica', 'Docência', 'Consultoria Estratégica', 'Jornalismo Investigativo', 'Ciência de Dados', 'Psicologia', 'Mentoria e Educação Corporativa']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.sabio.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.sabio.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.sabio.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.sabio.areas', { returnObjects: true })
         }
       },
       {
         key: 'explorador',
-        name: 'O Explorador',
+        name: t('tests.resultsModal.archetypes.archetypes.explorador.name'),
         icon: 'explore',
-        short: 'Busca liberdade, aventura e descoberta.',
+        short: t('tests.resultsModal.archetypes.archetypes.explorador.short'),
         details: {
-          paragraphs: [
-            'O Explorador valoriza autonomia, autenticidade e novas experiências. Tem forte desejo de expandir fronteiras e conhecer possibilidades.',
-            'Prefere carreiras e projetos com liberdade criativa, movimento constante e espaço para inovar.'
-          ],
-          strengths: ['Curiosidade prática', 'Coragem para arriscar', 'Autenticidade', 'Capacidade de se reinventar'],
-          challenges: ['Inquietação com rotinas', 'Dificuldade em manter projetos longos', 'Busca constante por novidade'],
-          areas: ['Turismo e Hospitalidade', 'Fotografia de Viagem', 'Empreendedorismo Criativo', 'Pesquisas de Mercado', 'Marketing de Lifestyle', 'Idiomas e Relações Internacionais', 'Startups e Negócios Digitais']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.explorador.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.explorador.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.explorador.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.explorador.areas', { returnObjects: true })
         }
       },
       {
         key: 'foraDaLei',
-        name: 'O Fora da Lei',
+        name: t('tests.resultsModal.archetypes.archetypes.foraDaLei.name'),
         icon: 'emergency',
-        short: 'Desafia o status quo e busca mudança radical.',
+        short: t('tests.resultsModal.archetypes.archetypes.foraDaLei.short'),
         details: {
-          paragraphs: [
-            'O Fora da Lei tem espírito disruptivo, confronta padrões e acredita na transformação social ou estrutural.',
-            'Enxerga oportunidades onde existem regras limitantes e atua para criar novas alternativas.'
-          ],
-          strengths: ['Coragem para questionar', 'Visão inovadora', 'Capacidade de mobilizar mudanças', 'Espírito empreendedor'],
-          challenges: ['Conflitos com autoridade', 'Impulsividade em decisões', 'Dificuldade com rotinas formais'],
-          areas: ['Inovação Social', 'Movimentos Sociais', 'Empreendedorismo Disruptivo', 'Design de Serviços', 'Publicidade Crítica', 'Tecnologia', 'Consultoria de Transformação Cultural']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.foraDaLei.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.foraDaLei.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.foraDaLei.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.foraDaLei.areas', { returnObjects: true })
         }
       },
       {
         key: 'mago',
-        name: 'O Mago',
+        name: t('tests.resultsModal.archetypes.archetypes.mago.name'),
         icon: 'auto_fix_high',
-        short: 'Transforma ideias em experiências significativas.',
+        short: t('tests.resultsModal.archetypes.archetypes.mago.short'),
         details: {
-          paragraphs: [
-            'O Mago acredita no poder da visão e da imaginação para materializar mudanças profundas.',
-            'Traz uma abordagem estratégica e inspiradora, conectando pessoas a experiências transformadoras.'
-          ],
-          strengths: ['Visão estratégica', 'Capacidade de inspirar', 'Criação de experiências marcantes', 'Intuição aguçada'],
-          challenges: ['Expectativas elevadas', 'Risco de se sobrecarregar', 'Desejo de controle excessivo'],
-          areas: ['Experiência do Cliente', 'Produção de Eventos', 'Storytelling Corporativo', 'Viagens Transformadoras', 'Educação Experiencial', 'Coaching e Mentoria', 'Design Thinking']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.mago.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.mago.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.mago.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.mago.areas', { returnObjects: true })
         }
       },
       {
         key: 'heroi',
-        name: 'O Herói',
+        name: t('tests.resultsModal.archetypes.archetypes.heroi.name'),
         icon: 'shield',
-        short: 'Supera desafios e busca impactar o mundo.',
+        short: t('tests.resultsModal.archetypes.archetypes.heroi.short'),
         details: {
-          paragraphs: [
-            'O Herói se motiva por desafios, busca provar seu valor e gerar impacto positivo na sociedade.',
-            'Possui energia para liderar projetos difíceis, persistir em metas exigentes e inspirar coragem.'
-          ],
-          strengths: ['Resiliência sob pressão', 'Capacidade de mobilizar equipes', 'Orientação a resultados', 'Competitividade saudável'],
-          challenges: ['Excesso de autoexigência', 'Dificuldade em delegar', 'Tendência a ignorar limites pessoais'],
-          areas: ['Gestão Executiva', 'Carreiras Militares', 'Esportes de Alto Desempenho', 'Emergências e Resgates', 'Política Pública', 'Empreendedorismo', 'Consultoria de Performance']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.heroi.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.heroi.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.heroi.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.heroi.areas', { returnObjects: true })
         }
       },
       {
         key: 'amante',
-        name: 'O Amante',
+        name: t('tests.resultsModal.archetypes.archetypes.amante.name'),
         icon: 'favorite',
-        short: 'Valoriza intimidade, beleza e conexões profundas.',
+        short: t('tests.resultsModal.archetypes.archetypes.amante.short'),
         details: {
-          paragraphs: [
-            'O Amante vive intensamente emoções e relações, buscando criar experiências memoráveis e significativas.',
-            'Dedica-se a projetos que envolvem estética, sensibilidade humana e proximidade com pessoas.'
-          ],
-          strengths: ['Sensibilidade estética', 'Empatia profunda', 'Capacidade de criar vínculos', 'Dedicação apaixonada'],
-          challenges: ['Dificuldade em estabelecer limites pessoais', 'Sensibilidade elevada a críticas', 'Necessidade de aprovação'],
-          areas: ['Design e Moda', 'Marketing Sensorial', 'Eventos Sociais', 'Consultoria de Imagem', 'Gastronomia', 'Terapias Integrativas', 'Atuação Artística']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.amante.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.amante.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.amante.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.amante.areas', { returnObjects: true })
         }
       },
       {
         key: 'bobo',
-        name: 'O Bobo da Corte',
+        name: t('tests.resultsModal.archetypes.archetypes.bobo.name'),
         icon: 'theater_comedy',
-        short: 'Traz alegria, espontaneidade e leveza.',
+        short: t('tests.resultsModal.archetypes.archetypes.bobo.short'),
         details: {
-          paragraphs: [
-            'O Bobo da Corte vive o presente com humor, improviso e criatividade, contribuindo para aliviar tensões.',
-            'Transforma ambientes rígidos em espaços mais humanos e acessíveis, cultivando alegria e leveza.'
-          ],
-          strengths: ['Espontaneidade', 'Carisma', 'Capacidade de quebrar tensões', 'Criatividade social'],
-          challenges: ['Pode ser subestimado', 'Dificuldade em contextos muito formais', 'Propensão a evitar conversas difíceis'],
-          areas: ['Comédia', 'Produção de Conteúdo', 'Mídias Sociais', 'Trabalho com Crianças', 'Animação de Eventos', 'Terapia do Riso', 'Experiências de Entretenimento']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.bobo.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.bobo.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.bobo.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.bobo.areas', { returnObjects: true })
         }
       },
       {
         key: 'caraComum',
-        name: 'O Cara Comum',
+        name: t('tests.resultsModal.archetypes.archetypes.caraComum.name'),
         icon: 'group',
-        short: 'Busca pertencimento e igualdade.',
+        short: t('tests.resultsModal.archetypes.archetypes.caraComum.short'),
         details: {
-          paragraphs: [
-            'O Cara Comum valoriza autenticidade, proximidade e a sensação de fazer parte de uma comunidade.',
-            'Prefere ambientes colaborativos, democráticos e com cultura de respeito mútuo.'
-          ],
-          strengths: ['Cooperação', 'Construção de confiança', 'Humildade', 'Sensibilidade a injustiças'],
-          challenges: ['Evita protagonismo', 'Pode se subestimar', 'Dificuldade em contextos competitivos'],
-          areas: ['Recursos Humanos', 'Serviços Comunitários', 'Atendimento ao Cliente', 'Comunicação Interna', 'Projetos Sociais', 'Educação', 'Hospitalidade']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.caraComum.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.caraComum.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.caraComum.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.caraComum.areas', { returnObjects: true })
         }
       },
       {
         key: 'cuidador',
-        name: 'O Cuidador',
+        name: t('tests.resultsModal.archetypes.archetypes.cuidador.name'),
         icon: 'healing',
-        short: 'Cuida, nutre e protege com compaixão.',
+        short: t('tests.resultsModal.archetypes.archetypes.cuidador.short'),
         details: {
-          paragraphs: [
-            'O Cuidador sente-se realizado ao apoiar o bem-estar dos outros e oferecer suporte genuíno.',
-            'Possui alta empatia e senso de responsabilidade, buscando alívio e segurança para quem acompanha.'
-          ],
-          strengths: ['Empatia genuína', 'Resiliência emocional', 'Entrega dedicada', 'Escuta acolhedora'],
-          challenges: ['Risco de esgotamento', 'Dificuldade em estabelecer limites', 'Propensão a se sobrecarregar'],
-          areas: ['Psicologia', 'Enfermagem', 'Serviço Social', 'Fisioterapia', 'Pedagogia', 'Terapia Ocupacional', 'Coaching de Vida', 'Gestão de Pessoas Humanizada']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.cuidador.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.cuidador.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.cuidador.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.cuidador.areas', { returnObjects: true })
         }
       },
       {
         key: 'governante',
-        name: 'O Governante',
+        name: t('tests.resultsModal.archetypes.archetypes.governante.name'),
         icon: 'workspace_premium',
-        short: 'Cria ordem, estruturas e direção.',
+        short: t('tests.resultsModal.archetypes.archetypes.governante.short'),
         details: {
-          paragraphs: [
-            'O Governante lidera com senso de responsabilidade, buscando estabilidade e resultados consistentes.',
-            'Gosta de definir metas claras, estruturar equipes e estabelecer padrões para entregar excelência.'
-          ],
-          strengths: ['Organização', 'Tomada de decisão', 'Autoridade natural', 'Planejamento estratégico'],
-          challenges: ['Controle excessivo', 'Dificuldade em delegar', 'Risco de centralizar poder'],
-          areas: ['Direção Executiva', 'Gestão Pública', 'Coordenação Educacional', 'Planejamento Estratégico', 'Consultoria Empresarial', 'Governança Corporativa']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.governante.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.governante.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.governante.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.governante.areas', { returnObjects: true })
         }
       },
       {
         key: 'criador',
-        name: 'O Criador',
+        name: t('tests.resultsModal.archetypes.archetypes.criador.name'),
         icon: 'brush',
-        short: 'Busca inovação e expressão com propósito.',
+        short: t('tests.resultsModal.archetypes.archetypes.criador.short'),
         details: {
-          paragraphs: [
-            'O Criador transforma ideias em algo concreto e original, unindo estética, significado e impacto.',
-            'Encontra realização em processos autorais, onde pode deixar sua marca e construir narrativas memoráveis.'
-          ],
-          strengths: ['Visão criativa', 'Dedicação a projetos autorais', 'Capacidade de materializar ideias', 'Sensibilidade estética apurada'],
-          challenges: ['Autocrítica intensa', 'Perfeccionismo', 'Dificuldade em concluir projetos extensos'],
-          areas: ['Design', 'Arquitetura', 'Publicidade', 'Produção Audiovisual', 'Artes Visuais', 'UX/UI', 'Branding', 'Empreendimentos Criativos']
+          paragraphs: t('tests.resultsModal.archetypes.archetypes.criador.paragraphs', { returnObjects: true }),
+          strengths: t('tests.resultsModal.archetypes.archetypes.criador.strengths', { returnObjects: true }),
+          challenges: t('tests.resultsModal.archetypes.archetypes.criador.challenges', { returnObjects: true }),
+          areas: t('tests.resultsModal.archetypes.archetypes.criador.areas', { returnObjects: true })
         }
       }
     ]
@@ -1320,7 +1314,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
               <div>
                 <p className={`font-semibold mb-1 ${highlight ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                  Potenciais destaques
+                  {t('tests.resultsModal.archetypes.strengths')}
                 </p>
                 <ul className="list-disc list-inside space-y-1">
                   {arch.details.strengths.map((item, idx) => (
@@ -1331,7 +1325,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
         <div>
                 <p className={`font-semibold mb-1 ${highlight ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                  Pontos de atenção
+                  {t('tests.resultsModal.archetypes.attentionPoints')}
                 </p>
                 <ul className="list-disc list-inside space-y-1">
                   {arch.details.challenges.map((item, idx) => (
@@ -1342,7 +1336,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
               <div>
                 <p className={`font-semibold mb-1 ${highlight ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                  Áreas e papéis sugeridos
+                  {t('tests.resultsModal.archetypes.suggestedAreas')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {arch.details.areas.map(area => (
@@ -1378,7 +1372,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
                 {overview.title}
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                Clique para entender como os arquétipos podem orientar suas escolhas pessoais e profissionais.
+                {t('tests.resultsModal.archetypes.clickToUnderstand')}
               </p>
             </div>
             <span
@@ -1402,7 +1396,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            ⭐ Seus 3 Arquétipos Dominantes
+            {t('tests.resultsModal.archetypes.yourTop3')}
           </h4>
           {top3.map((arch, idx) => renderArchetypeCard(arch, idx, false))}
         </div>
@@ -1410,7 +1404,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
         {remaining.length > 0 && (
           <div>
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              📊 Outros Arquétipos Presentes em Você
+              {t('tests.resultsModal.archetypes.otherArchetypes')}
             </h4>
             <div className="space-y-3">
               {remaining.map(arch => renderArchetypeCard(arch))}
@@ -1423,14 +1417,14 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
   const getTestTitle = () => {
     const titles = {
-      'anamnese-inicial': 'Anamnese - Seus Resultados',
-      'disc-insight': 'DISC Insight - Seu Perfil',
-      'inteligen-finder': 'Inteligen Finder - Resumo do Projeto',
-      'multiple-intelligences': 'Múltiplas Inteligências - Seu Perfil',
-      'riasec': 'RIASEC - Seu Perfil Profissional',
-      'archetypes': 'Arquétipos de Jung - Seus Resultados'
+      'anamnese-inicial': t('tests.resultsModal.titles.anamnese'),
+      'disc-insight': t('tests.resultsModal.titles.disc'),
+      'inteligen-finder': 'Inteligen Finder - Project Summary',
+      'multiple-intelligences': t('tests.resultsModal.titles.multipleIntelligences'),
+      'riasec': t('tests.resultsModal.titles.riasec'),
+      'archetypes': t('tests.resultsModal.titles.archetypes')
     }
-    return titles[testId] || 'Resultados'
+    return titles[testId] || (i18n.language === 'pt' ? 'Resultados' : 'Results')
   }
 
   return (
@@ -1443,7 +1437,7 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
               <h2 className="text-2xl font-bold">{getTestTitle()}</h2>
               {testData?.completedAt && (
                 <p className="text-sm text-white/80 mt-1">
-                  Concluído em {formatDate(testData.completedAt)}
+                  {t('tests.resultsModal.completedOn')} {formatDate(testData.completedAt)}
                 </p>
               )}
             </div>
@@ -1458,26 +1452,46 @@ const AssessmentResultsModal = ({ isOpen, onClose, testId, testData }) => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-8 pb-12">
-          <div className="space-y-6">
-            {testId === 'disc-insight' && renderDISCResults(testData?.results)}
-            {testId === 'anamnese-inicial' && renderAnamneseResults(testData?.data)}
-            {testId === 'inteligen-finder' && renderInteligenResults(testData?.data)}
-            {testId === 'multiple-intelligences' && renderMultipleIntelligencesResults(testData?.results)}
-            {testId === 'riasec' && renderRiasecResults(testData?.results)}
-            {testId === 'archetypes' && renderArchetypesResults(testData?.results)}
-          </div>
+          <AssessmentResultsErrorBoundary
+            fallbackRender={(error) => (
+              <div className="space-y-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
+                <p className="text-sm font-semibold text-red-800 dark:text-red-200">
+                  {i18n.language === 'pt' ? 'Erro ao exibir os resultados.' : 'Error displaying results.'}
+                </p>
+                <p className="text-xs text-red-700 dark:text-red-300 break-words">
+                  {String(error?.message || 'Unknown error')}
+                </p>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-lg bg-[#6152BD] text-white font-semibold"
+                >
+                  {t('tests.resultsModal.close')}
+                </button>
+              </div>
+            )}
+          >
+            <div className="space-y-6">
+              {testId === 'disc-insight' && renderDISCResults(testData?.results)}
+              {testId === 'anamnese-inicial' && renderAnamneseResults(testData?.data)}
+              {testId === 'inteligen-finder' && renderInteligenResults(testData?.data)}
+              {testId === 'multiple-intelligences' && renderMultipleIntelligencesResults(testData?.results)}
+              {testId === 'riasec' && renderRiasecResults(testData?.results)}
+              {testId === 'archetypes' && renderArchetypesResults(testData?.results)}
+            </div>
+          </AssessmentResultsErrorBoundary>
         </div>
 
         {/* Footer */}
         <div className="flex-shrink-0 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between">
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Seus dados estão salvos localmente no navegador
+            {t('tests.resultsModal.footerNote')}
           </p>
           <button
             onClick={onClose}
             className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
           >
-            Fechar
+            {t('tests.resultsModal.close')}
           </button>
         </div>
       </div>
