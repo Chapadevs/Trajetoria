@@ -1,4 +1,17 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import i18n from '../i18n'
+
+// Report language: set before composing so client-composed PDF uses the same lang as the API request
+let _reportLang = null
+export function setReportLang(lang) {
+  _reportLang = lang === 'pt' ? 'pt' : 'en'
+}
+function getReportLang() {
+  return _reportLang ?? (i18n.language && String(i18n.language).startsWith('pt') ? 'pt' : 'en')
+}
+function tr(key, opts = {}) {
+  return i18n.t(key, { ...opts, lng: getReportLang() })
+}
 
 // Replace characters not encodable by WinAnsi (used by StandardFonts) with safe equivalents
 function sanitizeForWinAnsi(text) {
@@ -138,7 +151,7 @@ export async function prependCoverAndSummary(coverImageUrl, originalPdfBase64) {
       const headerH = 44
       page.drawRectangle({ x: headerX, y: headerY, width: headerW, height: headerH, color: header, borderRadius: 16 })
       const boldFont = await composedPdf.embedFont(StandardFonts.HelveticaBold)
-      const headerText = 'SUMÁRIO'
+      const headerText = tr('reportPdf.summaryTitle')
       const headerFontSize = 18
       const textWidth = boldFont.widthOfTextAtSize(headerText, headerFontSize)
       const headerTextX = headerX + (headerW - textWidth) / 2
@@ -195,7 +208,7 @@ export async function composeWithCoverSummaryAnamnese(coverImageUrl, originalPdf
   page.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
   // Title bar
-  const title = 'Anamnese - Dados Gerais'
+  const title = tr('reportPdf.anamneseTitle')
   const titleH = 46
   page.drawRectangle({ x: 30, y: height - 100, width: width - 60, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 16
@@ -228,38 +241,41 @@ export async function composeWithCoverSummaryAnamnese(coverImageUrl, originalPdf
 
   // Informações pessoais (full width)
   const infoH = 92
-  card(30, cursorY - infoH, width - 60, infoH, 'Informações Pessoais', [
-    `Nome: ${anamneseData.nomeCompleto || 'Não informado'}`,
-    `Idade: ${anamneseData.idade ? `${anamneseData.idade} anos` : '—'}`,
-    `Localização: ${anamneseData.cidadeEstado || '—'}`,
-    `E-mail: ${anamneseData.email || '—'}`
+  const dash = tr('reportPdf.dash')
+  const notInformed = tr('reportPdf.notInformed')
+  const ageYears = (age) => tr('reportPdf.ageYears', { age })
+  card(30, cursorY - infoH, width - 60, infoH, tr('reportPdf.personalInfo'), [
+    `${tr('reportPdf.name')}: ${anamneseData.nomeCompleto || notInformed}`,
+    `${tr('reportPdf.age')}: ${anamneseData.idade ? ageYears(anamneseData.idade) : dash}`,
+    `${tr('reportPdf.location')}: ${anamneseData.cidadeEstado || dash}`,
+    `${tr('reportPdf.email')}: ${anamneseData.email || dash}`
   ])
   cursorY -= infoH + 12
 
   // Escolaridade (left), Situação Profissional (right)
   const smallH = 80
-  card(30, cursorY - smallH, colW, smallH, 'Escolaridade', [
-    anamneseData.nivelEscolaridade || '—',
-    anamneseData.areaEstudo ? `Área: ${anamneseData.areaEstudo}` : null
+  card(30, cursorY - smallH, colW, smallH, tr('reportPdf.education'), [
+    anamneseData.nivelEscolaridade || dash,
+    anamneseData.areaEstudo ? `${tr('reportPdf.area')}: ${anamneseData.areaEstudo}` : null
   ])
-  card(30 + colW + colGap, cursorY - smallH, colW, smallH, 'Situação Profissional', [
-    anamneseData.situacaoProfissional || '—',
-    anamneseData.ocupacaoAtual ? `Ocupação: ${anamneseData.ocupacaoAtual}` : null
+  card(30 + colW + colGap, cursorY - smallH, colW, smallH, tr('reportPdf.professionalSituation'), [
+    anamneseData.situacaoProfissional || dash,
+    anamneseData.ocupacaoAtual ? `${tr('reportPdf.occupation')}: ${anamneseData.ocupacaoAtual}` : null
   ])
   cursorY -= smallH + 12
 
   // Áreas de Interesse (full width)
   const interests = Array.isArray(anamneseData.areasInteresse) ? anamneseData.areasInteresse : []
-  const interestLines = interests.length ? [`${interests.join(' • ')}`] : ['—']
+  const interestLines = interests.length ? [`${interests.join(' • ')}`] : [dash]
   const interestsH = 64
-  card(30, cursorY - interestsH, width - 60, interestsH, 'Áreas de Interesse', interestLines)
+  card(30, cursorY - interestsH, width - 60, interestsH, tr('reportPdf.areasOfInterest'), interestLines)
   cursorY -= interestsH + 12
 
   // Objetivos de Carreira (full width)
   const goals = Array.isArray(anamneseData.objetivosCarreira) ? anamneseData.objetivosCarreira : []
-  const goalText = goals.length ? goals.join(' • ') : '—'
+  const goalText = goals.length ? goals.join(' • ') : dash
   const goalsH = 64
-  card(30, cursorY - goalsH, width - 60, goalsH, 'Objetivos de Carreira', [goalText])
+  card(30, cursorY - goalsH, width - 60, goalsH, tr('reportPdf.careerGoals'), [goalText])
   cursorY -= goalsH + 12
 
   // DO NOT append original pages - we only want our custom pages
@@ -312,7 +328,7 @@ export async function composeWithCoverSummaryAnamneseDisc(coverImageUrl, origina
   discPage.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
   // Title
-  const title = 'DISC Insight - Perfil de Personalidade'
+  const title = tr('reportPdf.discTitle')
   const titleH = 46
   discPage.drawRectangle({ x: 30, y: height - 100, width: width - 60, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 16
@@ -326,7 +342,12 @@ export async function composeWithCoverSummaryAnamneseDisc(coverImageUrl, origina
   })
 
   // Dominant card
-  const entries = [['D','Dominância', COLOR_D], ['I','Influência', COLOR_I], ['S','Estabilidade', COLOR_S], ['C','Conformidade', COLOR_C]]
+  const entries = [
+    ['D', tr('reportPdf.dominance'), COLOR_D],
+    ['I', tr('reportPdf.influence'), COLOR_I],
+    ['S', tr('reportPdf.steadiness'), COLOR_S],
+    ['C', tr('reportPdf.conscientiousness'), COLOR_C]
+  ]
   const scores = {
     D: Number(discResults.D ?? 0),
     I: Number(discResults.I ?? 0),
@@ -347,8 +368,8 @@ export async function composeWithCoverSummaryAnamneseDisc(coverImageUrl, origina
   discPage.drawCircle({ x: domX + 24 + badgeSize/2, y: domY + domH - 24 - badgeSize/2, size: badgeSize/2, color: dominant[2] })
   discPage.drawText(sanitizeForWinAnsi(dominant[0]), { x: domX + 24 + badgeSize/2 - 8, y: domY + domH - 24 - badgeSize/2 - 6, size: 18, font: bold, color: WHITE })
   // Title and description
-  discPage.drawText(sanitizeForWinAnsi(`Seu Perfil: ${dominant[1]}`), { x: domX + 24 + badgeSize + 12, y: domY + domH - 28, size: 14, font: bold, color: SLATE_700 })
-  discPage.drawText(sanitizeForWinAnsi(`${dominantScore}% dominância`), { x: domX + 24 + badgeSize + 12, y: domY + domH - 46, size: 11, font: regular, color: SLATE_700 })
+  discPage.drawText(sanitizeForWinAnsi(`${tr('reportPdf.yourProfile')}: ${dominant[1]}`), { x: domX + 24 + badgeSize + 12, y: domY + domH - 28, size: 14, font: bold, color: SLATE_700 })
+  discPage.drawText(sanitizeForWinAnsi(tr('reportPdf.dominancePct', { pct: dominantScore })), { x: domX + 24 + badgeSize + 12, y: domY + domH - 46, size: 11, font: regular, color: SLATE_700 })
 
   // Distribution bars
   const barStartY = domY - 20
@@ -366,10 +387,10 @@ export async function composeWithCoverSummaryAnamneseDisc(coverImageUrl, origina
     y -= barGap
   }
   y = barStartY
-  drawBar('Dominância (D)', scores.D, COLOR_D)
-  drawBar('Influência (I)', scores.I, COLOR_I)
-  drawBar('Estabilidade (S)', scores.S, COLOR_S)
-  drawBar('Conformidade (C)', scores.C, COLOR_C)
+  drawBar(tr('reportPdf.discD'), scores.D, COLOR_D)
+  drawBar(tr('reportPdf.discI'), scores.I, COLOR_I)
+  drawBar(tr('reportPdf.discS'), scores.S, COLOR_S)
+  drawBar(tr('reportPdf.discC'), scores.C, COLOR_C)
 
   // DO NOT append original pages - we only want our custom pages
 
@@ -409,7 +430,7 @@ export async function composeWithCoverSummaryAnamneseDiscMI(coverImageUrl, origi
   const miPage = pdf.addPage(pageSize)
   miPage.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
-  const title = 'Inteligências Múltiplas'
+  const title = tr('reportPdf.multipleIntelligences')
   const titleH = 46
   miPage.drawRectangle({ x: 30, y: height - 100, width: width - 60, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 16
@@ -425,14 +446,14 @@ export async function composeWithCoverSummaryAnamneseDiscMI(coverImageUrl, origi
   // Prepare sorted list of intelligences by score
   const keys = ['logica','linguistica','espacial','musical','corporal','interpessoal','intrapessoal','naturalista']
   const labels = {
-    logica: 'Lógico-Matemática',
-    linguistica: 'Linguística',
-    espacial: 'Espacial',
-    musical: 'Musical',
-    corporal: 'Corporal-Cinestésica',
-    interpessoal: 'Interpessoal',
-    intrapessoal: 'Intrapessoal',
-    naturalista: 'Naturalista'
+    logica: tr('reportPdf.miLogica'),
+    linguistica: tr('reportPdf.miLinguistica'),
+    espacial: tr('reportPdf.miEspacial'),
+    musical: tr('reportPdf.miMusical'),
+    corporal: tr('reportPdf.miCorporal'),
+    interpessoal: tr('reportPdf.miInterpessoal'),
+    intrapessoal: tr('reportPdf.miIntrapessoal'),
+    naturalista: tr('reportPdf.miNaturalista')
   }
   const list = keys.map(k => ({ key: k, label: labels[k], value: Number(miResults[k] ?? 0) }))
     .sort((a,b) => b.value - a.value)
@@ -512,7 +533,7 @@ export async function composeWithCoverSummaryAnamneseDiscMIRiasec(coverImageUrl,
   const rPage = pdf.addPage(pageSize)
   rPage.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
-  const title = 'RIASEC - Orientação Profissional'
+  const title = tr('reportPdf.riasecTitle')
   const titleH = 46
   rPage.drawRectangle({ x: 30, y: height - 100, width: width - 60, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 16
@@ -534,12 +555,12 @@ export async function composeWithCoverSummaryAnamneseDiscMIRiasec(coverImageUrl,
     C: Number(riasecResults.C ?? 0)
   }
   const entries = [
-    ['R','Realista', COLOR_R],
-    ['I','Investigativo', COLOR_I],
-    ['A','Artístico', COLOR_A_BAR],
-    ['S','Social', COLOR_S],
-    ['E','Empreendedor', COLOR_E],
-    ['C','Convencional', COLOR_C],
+    ['R', tr('reportPdf.riasecR'), COLOR_R],
+    ['I', tr('reportPdf.riasecI'), COLOR_I],
+    ['A', tr('reportPdf.riasecA'), COLOR_A_BAR],
+    ['S', tr('reportPdf.riasecS'), COLOR_S],
+    ['E', tr('reportPdf.riasecE'), COLOR_E],
+    ['C', tr('reportPdf.riasecC'), COLOR_C],
   ]
   const sorted = entries.sort((a,b) => (scores[b[0]]||0) - (scores[a[0]]||0))
   const dominant = sorted[0]
@@ -550,7 +571,7 @@ export async function composeWithCoverSummaryAnamneseDiscMIRiasec(coverImageUrl,
   const domW = width - 60
   const domH = 90
   rPage.drawRectangle({ x: domX, y: domY, width: domW, height: domH, color: WHITE, borderColor: SLATE_200, borderWidth: 1, borderRadius: 12 })
-  rPage.drawText(sanitizeForWinAnsi(`Seu Perfil Dominante: ${dominant[1]}`), { x: domX + 20, y: domY + domH - 28, size: 14, font: bold, color: SLATE_700 })
+  rPage.drawText(sanitizeForWinAnsi(`${tr('reportPdf.yourProfile')}: ${dominant[1]}`), { x: domX + 20, y: domY + domH - 28, size: 14, font: bold, color: SLATE_700 })
   rPage.drawText(sanitizeForWinAnsi(`${scores[dominant[0]] || 0}%`), { x: domX + 20, y: domY + 20, size: 18, font: bold, color: SLATE_700 })
 
   // Bars for all
@@ -567,12 +588,12 @@ export async function composeWithCoverSummaryAnamneseDiscMIRiasec(coverImageUrl,
     rPage.drawRectangle({ x: labelX + 120, y: barY, width: w, height: barH, color, borderRadius: 5 })
     rPage.drawText(sanitizeForWinAnsi(`${value}%`), { x: labelX + 120 + barMaxW + 6, y: barY + 2, size: 10, font: bold, color: SLATE_700 })
   }
-  drawBar('Realista (R)', scores.R, COLOR_R)
-  drawBar('Investigativo (I)', scores.I, COLOR_I)
-  drawBar('Artístico (A)', scores.A, COLOR_A_BAR)
-  drawBar('Social (S)', scores.S, COLOR_S)
-  drawBar('Empreendedor (E)', scores.E, COLOR_E)
-  drawBar('Convencional (C)', scores.C, COLOR_C)
+  drawBar(`${tr('reportPdf.riasecR')} (R)`, scores.R, COLOR_R)
+  drawBar(`${tr('reportPdf.riasecI')} (I)`, scores.I, COLOR_I)
+  drawBar(`${tr('reportPdf.riasecA')} (A)`, scores.A, COLOR_A_BAR)
+  drawBar(`${tr('reportPdf.riasecS')} (S)`, scores.S, COLOR_S)
+  drawBar(`${tr('reportPdf.riasecE')} (E)`, scores.E, COLOR_E)
+  drawBar(`${tr('reportPdf.riasecC')} (C)`, scores.C, COLOR_C)
 
   // DO NOT append original pages - we only want our custom pages
 
@@ -612,7 +633,7 @@ export async function composeWithCoverSummaryAnamneseDiscMIRiasecArchetypes(cove
   const aPage = pdf.addPage(pageSize)
   aPage.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
-  const title = 'Arquétipos de Personalidade'
+  const title = tr('reportPdf.archetypesTitle')
   const titleH = 46
   aPage.drawRectangle({ x: 30, y: height - 100, width: width - 60, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 16
@@ -627,18 +648,18 @@ export async function composeWithCoverSummaryAnamneseDiscMIRiasecArchetypes(cove
 
   const keys = ['inocente','sabio','explorador','foraDaLei','mago','heroi','amante','bobo','caraComum','cuidador','governante','criador']
   const labels = {
-    inocente: 'O Inocente',
-    sabio: 'O Sábio',
-    explorador: 'O Explorador',
-    foraDaLei: 'O Fora da Lei',
-    mago: 'O Mago',
-    heroi: 'O Herói',
-    amante: 'O Amante',
-    bobo: 'O Bobo da Corte',
-    caraComum: 'O Cara Comum',
-    cuidador: 'O Cuidador',
-    governante: 'O Governante',
-    criador: 'O Criador'
+    inocente: tr('reportPdf.archInocente'),
+    sabio: tr('reportPdf.archSabio'),
+    explorador: tr('reportPdf.archExplorador'),
+    foraDaLei: tr('reportPdf.archForaDaLei'),
+    mago: tr('reportPdf.archMago'),
+    heroi: tr('reportPdf.archHeroi'),
+    amante: tr('reportPdf.archAmante'),
+    bobo: tr('reportPdf.archBobo'),
+    caraComum: tr('reportPdf.archCaraComum'),
+    cuidador: tr('reportPdf.archCuidador'),
+    governante: tr('reportPdf.archGovernante'),
+    criador: tr('reportPdf.archCriador')
   }
   const items = keys.map(k => ({ key: k, label: labels[k], value: Number(archetypesResults[k] ?? 0) }))
     .sort((a,b) => b.value - a.value)
@@ -728,29 +749,29 @@ export async function composeWithHighlights(coverImageUrl, originalPdfBase64, an
   const archKeys = ['heroi','mago','sabio','explorador','governante','criador','amante','bobo','caraComum','cuidador','inocente','foraDaLei']
   const topArch = archKeys.sort((a,b)=> (archetypesResults[b]||0)-(archetypesResults[a]||0)).slice(0,1)
 
-  const mapDiscName = { D: 'Dominância', I: 'Influência', S: 'Estabilidade', C: 'Conformidade' }
+  const mapDiscName = { D: tr('reportPdf.dominance'), I: tr('reportPdf.influence'), S: tr('reportPdf.steadiness'), C: tr('reportPdf.conscientiousness') }
   const mapMiLabel = {
-    logica:'Lógico‑Matemática', linguistica:'Linguística', espacial:'Espacial', musical:'Musical',
-    corporal:'Corporal‑Cinestésica', interpessoal:'Interpessoal', intrapessoal:'Intrapessoal', naturalista:'Naturalista'
+    logica: tr('reportPdf.miLogica'), linguistica: tr('reportPdf.miLinguistica'), espacial: tr('reportPdf.miEspacial'), musical: tr('reportPdf.miMusical'),
+    corporal: tr('reportPdf.miCorporal'), interpessoal: tr('reportPdf.miInterpessoal'), intrapessoal: tr('reportPdf.miIntrapessoal'), naturalista: tr('reportPdf.miNaturalista')
   }
-  const mapRiasec = { R:'Realista', I:'Investigativo', A:'Artístico', S:'Social', E:'Empreendedor', C:'Convencional' }
-  const mapArch = { heroi:'Herói', mago:'Mago', sabio:'Sábio', explorador:'Explorador', governante:'Governante', criador:'Criador', amante:'Amante', bobo:'Bobo da Corte', caraComum:'Cara Comum', cuidador:'Cuidador', inocente:'Inocente', foraDaLei:'Fora da Lei' }
+  const mapRiasec = { R: tr('reportPdf.riasecR'), I: tr('reportPdf.riasecI'), A: tr('reportPdf.riasecA'), S: tr('reportPdf.riasecS'), E: tr('reportPdf.riasecE'), C: tr('reportPdf.riasecC') }
+  const mapArch = { heroi: tr('reportPdf.archHeroi'), mago: tr('reportPdf.archMago'), sabio: tr('reportPdf.archSabio'), explorador: tr('reportPdf.archExplorador'), governante: tr('reportPdf.archGovernante'), criador: tr('reportPdf.archCriador'), amante: tr('reportPdf.archAmante'), bobo: tr('reportPdf.archBobo'), caraComum: tr('reportPdf.archCaraComum'), cuidador: tr('reportPdf.archCuidador'), inocente: tr('reportPdf.archInocente'), foraDaLei: tr('reportPdf.archForaDaLei') }
 
-  const direcao = `Sua motivação se orienta por ${mapArch[topArch[0]] || 'propósito claro'} e pelo estilo ${mapDiscName[dominantDisc] || ''}, buscando fazer a diferença com consistência.`
-  const alvo = `Seus destaques combinam ${topMi.map(k=>mapMiLabel[k]).filter(Boolean).join(' e ')} com interesses ${topRiasec.map(k=>mapRiasec[k]).filter(Boolean).join(' e ')} - ótimos para interagir, resolver problemas e aprender continuamente.`
-  const impulso = `O potencial de crescimento está em usar ${mapMiLabel[topMi[0]] || 'suas competências'} para alavancar projetos alinhados a ${mapRiasec[topRiasec[0]] || 'seu perfil'}, mantendo foco e ritmo.`
-  const caminho = `Tecnologia, empreendedorismo e áreas afins oferecem oportunidades coerentes com seus valores; priorize trilhas que unam ${mapMiLabel[topMi[0]] || ''} e ${mapRiasec[topRiasec[0]] || ''}.`
+  const direcao = tr('reportPdf.direcaoTemplate', { arch: mapArch[topArch[0]] || '', disc: mapDiscName[dominantDisc] || '' })
+  const alvo = tr('reportPdf.alvoTemplate', { mi: topMi.map(k => mapMiLabel[k]).filter(Boolean).join(' e '), riasec: topRiasec.map(k => mapRiasec[k]).filter(Boolean).join(' e ') })
+  const impulso = tr('reportPdf.impulsoTemplate', { mi: mapMiLabel[topMi[0]] || '', riasec: mapRiasec[topRiasec[0]] || '' })
+  const caminho = tr('reportPdf.pathTemplate', { mi: mapMiLabel[topMi[0]] || '', riasec: mapRiasec[topRiasec[0]] || '' })
 
   // Draw page layout following the provided model (title + 2x2 cards)
   const p = pdf.addPage(pageSize)
   p.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
-  const title = 'DESTAQUES DA JORNADA'
+  const title = tr('reportPdf.highlightsTitle')
   const titleH = 46
   p.drawRectangle({ x: 20, y: height - 100, width: width - 40, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 20
   const titleWidth = bold.widthOfTextAtSize(title, titleSize)
-  p.drawText(title, {
+  p.drawText(sanitizeForWinAnsi(title), {
     x: 20 + (width - 40 - titleWidth) / 2,
     y: height - 100 + (titleH - titleSize) / 2 + 6,
     size: titleSize,
@@ -883,10 +904,10 @@ export async function composeWithHighlights(coverImageUrl, originalPdfBase64, an
     }
   }
 
-  await drawCard(leftX, topY, cardW, cardH, 'Direção:', direcao, '../assets/icons-relatorio/ICON DIREÇÃO.svg')
-  await drawCard(rightX, topY, cardW, cardH, 'Alvo:', alvo, null) // No icon for Alvo yet
-  await drawCard(leftX, bottomY, cardW, cardH, 'Impulso:', impulso, '../assets/icons-relatorio/ICON IMPULSO-42.svg')
-  await drawCard(rightX, bottomY, cardW, cardH, 'Caminho:', caminho, '../assets/icons-relatorio/icon caminho.svg')
+  await drawCard(leftX, topY, cardW, cardH, tr('reportPdf.direction'), direcao, '../assets/icons-relatorio/ICON DIREÇÃO.svg')
+  await drawCard(rightX, topY, cardW, cardH, tr('reportPdf.target'), alvo, null) // No icon for Alvo yet
+  await drawCard(leftX, bottomY, cardW, cardH, tr('reportPdf.impulse'), impulso, '../assets/icons-relatorio/ICON IMPULSO-42.svg')
+  await drawCard(rightX, bottomY, cardW, cardH, tr('reportPdf.path'), caminho, '../assets/icons-relatorio/icon caminho.svg')
 
   // DO NOT append original pages - we only want our custom pages
 
@@ -922,13 +943,14 @@ export async function composeWithMoreHighlights(coverImageUrl, originalPdfBase64
   const SLATE_700 = rgb(0x38/255, 0x47/255, 0x59/255)
   const PRIMARY = rgb(0x61/255, 0x52/255, 0xBD/255)
 
-  // Reuse mappings
-  const mapDiscName = { D: 'Influente', I: 'Influente', S: 'Estável', C: 'Conforme' }
+  // Reuse mappings (use same i18n labels as composeWithHighlights)
+  const mapDiscName = { D: tr('reportPdf.dominance'), I: tr('reportPdf.influence'), S: tr('reportPdf.steadiness'), C: tr('reportPdf.conscientiousness') }
   const mapMiLabel = {
-    logica:'lógica', linguistica:'linguística', espacial:'espacial', musical:'musical',
-    corporal:'corporal‑cinestésica', interpessoal:'interpessoal', intrapessoal:'intrapessoal', naturalista:'naturalista'
+    logica: tr('reportPdf.miLogica'), linguistica: tr('reportPdf.miLinguistica'), espacial: tr('reportPdf.miEspacial'), musical: tr('reportPdf.miMusical'),
+    corporal: tr('reportPdf.miCorporal'), interpessoal: tr('reportPdf.miInterpessoal'), intrapessoal: tr('reportPdf.miIntrapessoal'), naturalista: tr('reportPdf.miNaturalista')
   }
-  const mapRiasec = { R:'Realista', I:'Investigativo', A:'Artístico', S:'Social', E:'Empreendedor', C:'Convencional' }
+  const mapRiasec = { R: tr('reportPdf.riasecR'), I: tr('reportPdf.riasecI'), A: tr('reportPdf.riasecA'), S: tr('reportPdf.riasecS'), E: tr('reportPdf.riasecE'), C: tr('reportPdf.riasecC') }
+  const mapArch = { heroi: tr('reportPdf.archHeroi'), mago: tr('reportPdf.archMago'), sabio: tr('reportPdf.archSabio'), explorador: tr('reportPdf.archExplorador'), governante: tr('reportPdf.archGovernante'), criador: tr('reportPdf.archCriador'), amante: tr('reportPdf.archAmante'), bobo: tr('reportPdf.archBobo'), caraComum: tr('reportPdf.archCaraComum'), cuidador: tr('reportPdf.archCuidador'), inocente: tr('reportPdf.archInocente'), foraDaLei: tr('reportPdf.archForaDaLei') }
   const archKeys = ['sabio','explorador','foraDaLei','mago','heroi','governante','criador','amante','bobo','caraComum','cuidador','inocente']
   const topArch = archKeys.sort((a,b)=> (archetypesResults[b]||0)-(archetypesResults[a]||0)).slice(0,2)
 
@@ -940,21 +962,21 @@ export async function composeWithMoreHighlights(coverImageUrl, originalPdfBase64
   const riasecOrder = ['I','R','A','S','E','C'].sort((a,b)=> (riasecResults[b]||0)-(riasecResults[a]||0))
   const topRiasec = riasecOrder.slice(0,2)
 
-  // Texts per the second model
-  const estilo = `Seu perfil comportamental, com predominância em ${mapDiscName[dominantDisc] || 'influência'}, indica que você navega com carisma e sociabilidade. Sua habilidade de se comunicar e conectar pessoas é um diferencial em qualquer caminho profissional.`
-  const terreno = `As suas múltiplas inteligências, especialmente a ${mapMiLabel[topMi[0]] || 'interpessoal'} e a ${mapMiLabel[topMi[1]] || 'lógica'}, são o terreno fértil onde seu potencial pode florescer. Você aprende rápido e transforma ideias em colaboração e inovação.`
-  const mapa = `No RIASEC, destacam-se ${mapRiasec[topRiasec[0]] || 'seu perfil'} e ${mapRiasec[topRiasec[1]] || ''}. Isso sugere que você gosta de resolver problemas com base em evidências e criar soluções práticas com impacto real.`
-  const essencia = `Com arquétipos como ${topArch.map(a=>a.charAt(0).toUpperCase()+a.slice(1)).join(' e ')}, sua essência combina conhecimento, exploração e liberdade de criar. Você tem vocação para histórias de descoberta e transformação, inspirando pessoas ao seu redor.`
+  // Texts per the second model (use i18n templates)
+  const estilo = tr('reportPdf.estiloTemplate', { disc: mapDiscName[dominantDisc] || '' })
+  const terreno = tr('reportPdf.terrenoTemplate', { mi1: mapMiLabel[topMi[0]] || '', mi2: mapMiLabel[topMi[1]] || '' })
+  const mapa = tr('reportPdf.mapaTemplate', { r1: mapRiasec[topRiasec[0]] || '', r2: mapRiasec[topRiasec[1]] || '' })
+  const essencia = tr('reportPdf.essenciaTemplate', { arch: topArch.map(a => mapArch[a]).filter(Boolean).join(' e ') })
 
   const p = pdf.addPage(pageSize)
   p.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
-  const title = 'DESTAQUES DA JORNADA'
+  const title = tr('reportPdf.highlightsTitle')
   const titleH = 46
   p.drawRectangle({ x: 20, y: height - 100, width: width - 40, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 20
   const titleWidth = bold.widthOfTextAtSize(title, titleSize)
-  p.drawText(title, {
+  p.drawText(sanitizeForWinAnsi(title), {
     x: 20 + (width - 40 - titleWidth) / 2,
     y: height - 100 + (titleH - titleSize) / 2 + 6,
     size: titleSize,
@@ -1080,10 +1102,10 @@ export async function composeWithMoreHighlights(coverImageUrl, originalPdfBase64
     }
   }
 
-  await drawCard(leftX, topY, cardW, cardH, 'O Estilo de Navegação', estilo, '../assets/icons-relatorio/ICON DIREÇÃO.svg')
-  await drawCard(rightX, topY, cardW, cardH, 'O Terreno de Habilidades', terreno, null) // No specific icon
-  await drawCard(leftX, bottomY, cardW, cardH, 'O Mapa das Possibilidades', mapa, '../assets/icons-relatorio/icon mapa das possibidlidades.svg')
-  await drawCard(rightX, bottomY, cardW, cardH, 'A Essência do Caminhante', essencia, '../assets/icons-relatorio/icon essencia do caminhante.svg')
+  await drawCard(leftX, topY, cardW, cardH, tr('reportPdf.navigationStyle'), estilo, '../assets/icons-relatorio/ICON DIREÇÃO.svg')
+  await drawCard(rightX, topY, cardW, cardH, tr('reportPdf.terrainOfSkills'), terreno, null) // No specific icon
+  await drawCard(leftX, bottomY, cardW, cardH, tr('reportPdf.mapOfPossibilities'), mapa, '../assets/icons-relatorio/icon mapa das possibidlidades.svg')
+  await drawCard(rightX, bottomY, cardW, cardH, tr('reportPdf.essenceOfWalker'), essencia, '../assets/icons-relatorio/icon essencia do caminhante.svg')
 
   // DO NOT append original pages - we only want our custom pages
 
@@ -1123,42 +1145,33 @@ export async function composeWithActionPlan(coverImageUrl, originalPdfBase64, an
   // Derive simple suggestions
   const topMi = Object.entries(miResults).sort((a,b)=> (b[1]??0)-(a[1]??0)).map(([k])=>k).slice(0,2)
   const topRiasec = Object.entries(riasecResults).sort((a,b)=> (b[1]??0)-(a[1]??0)).map(([k])=>k).slice(0,2)
-  const mapMi = { logica:'lógico‑matemática', linguistica:'linguística', espacial:'espacial', musical:'musical', corporal:'corporal‑cinestésica', interpessoal:'interpessoal', intrapessoal:'intrapessoal', naturalista:'naturalista' }
-  const mapRiasec = { R:'Realista', I:'Investigativo', A:'Artístico', S:'Social', E:'Empreendedor', C:'Convencional' }
+  const mapMi = { logica: tr('reportPdf.miLogica'), linguistica: tr('reportPdf.miLinguistica'), espacial: tr('reportPdf.miEspacial'), musical: tr('reportPdf.miMusical'), corporal: tr('reportPdf.miCorporal'), interpessoal: tr('reportPdf.miInterpessoal'), intrapessoal: tr('reportPdf.miIntrapessoal'), naturalista: tr('reportPdf.miNaturalista') }
+  const mapRiasec = { R: tr('reportPdf.riasecR'), I: tr('reportPdf.riasecI'), A: tr('reportPdf.riasecA'), S: tr('reportPdf.riasecS'), E: tr('reportPdf.riasecE'), C: tr('reportPdf.riasecC') }
 
   const routes = [
-    {
-      title: 'Gestão de Projetos Sociais:',
-      text: `Combinando suas inteligências ${mapMi[topMi[0]] || 'interpessoal'} e ${mapMi[topMi[1]] || 'intrapessoal'}, atue em projetos que impactem a sociedade. Use sua empatia e organização para mobilizar stakeholders e gerar transformação.`
-    },
-    {
-      title: 'Consultoria em Inovação:',
-      text: `Aproveite seu perfil ${mapRiasec[topRiasec[0]] || 'Investigativo'} e ${mapRiasec[topRiasec[1]] || 'Empreendedor'} para implementar ideias novas. Analise dados, conduza experimentos e pilote soluções que destravem resultados nas organizações.`
-    },
-    {
-      title: 'Empreendedorismo em Tecnologia:',
-      text: `Se sua combinação de ${mapMi[topMi[0]] || 'competências'} e visão prática fala alto, crie soluções digitais enxutas para problemas reais. O ambiente ágil e flexível de tecnologia combina com seu perfil.`
-    }
+    { title: tr('reportPdf.actionRoute1Title'), text: tr('reportPdf.route1Template', { mi1: mapMi[topMi[0]] || '', mi2: mapMi[topMi[1]] || '' }) },
+    { title: tr('reportPdf.actionRoute2Title'), text: tr('reportPdf.route2Template', { r1: mapRiasec[topRiasec[0]] || '', r2: mapRiasec[topRiasec[1]] || '' }) },
+    { title: tr('reportPdf.actionRoute3Title'), text: tr('reportPdf.route3Template', { mi: mapMi[topMi[0]] || '' }) }
   ]
 
   const steps = [
-    'Identifique oportunidades de aprendizado alinhadas ao seu perfil.',
-    'Experimente áreas que unam inovação e flexibilidade.',
-    'Desenvolva competências complementares aos seus destaques.',
-    'Busque feedbacks para ajustar direção e acelerar metas.',
-    'Inicie um projeto-piloto que una suas forças e interesses.'
+    tr('reportPdf.actionStep1'),
+    tr('reportPdf.actionStep2'),
+    tr('reportPdf.actionStep3'),
+    tr('reportPdf.actionStep4'),
+    tr('reportPdf.actionStep5')
   ]
 
   const p = pdf.addPage(pageSize)
   p.drawRectangle({ x: 0, y: 0, width, height, color: SLATE_50 })
 
   // Title bar
-  const title = 'ROTAS DE AÇÃO'
+  const title = tr('reportPdf.actionRoutesTitle')
   const titleH = 46
   p.drawRectangle({ x: 20, y: height - 100, width: width - 40, height: titleH, color: PRIMARY, borderRadius: 12 })
   const titleSize = 20
   const titleWidth = bold.widthOfTextAtSize(title, titleSize)
-  p.drawText(title, {
+  p.drawText(sanitizeForWinAnsi(title), {
     x: 20 + (width - 40 - titleWidth) / 2,
     y: height - 100 + (titleH - titleSize) / 2 + 6,
     size: titleSize,
@@ -1167,7 +1180,7 @@ export async function composeWithActionPlan(coverImageUrl, originalPdfBase64, an
   })
 
   // Subtitle pill
-  const sub = 'Três Caminhos Possíveis'
+  const sub = tr('reportPdf.threePathsSubtitle')
   const subW = width - 40
   const subH = 44
   p.drawRectangle({ x: 20, y: height - 160, width: subW, height: subH, color: WHITE, borderColor: SLATE_200, borderWidth: 1, borderRadius: 12 })
@@ -1251,7 +1264,7 @@ export async function composeWithConclusion(coverImageUrl, originalPdfBase64, an
   const p = pdf.addPage(pageSize)
 
   // Top label
-  const topLabel = 'CONCLUSÕES'
+  const topLabel = tr('reportPdf.conclusionsTitle')
   p.drawText(sanitizeForWinAnsi(topLabel), { x: 12, y: height - 24, size: 10, font: bold, color: SLATE_300 })
 
   // Main block
@@ -1298,47 +1311,47 @@ export async function composeWithConclusion(coverImageUrl, originalPdfBase64, an
     p.drawText(sanitizeForWinAnsi(brand), { x: blockX + (blockW - brandWidth)/2, y: blockY + blockH - 72, size: brandSize, font: bold, color: TEXT_LIGHT })
   }
 
-  // Parse narrativeText from AI
+  // Parse narrativeText from AI (language-aware: narrative is in current app language)
   const firstName = (anamneseData?.nomeCompleto || '').trim().split(' ')[0] || ''
-  const heading = 'O Destino é o Caminho'
-  
+  const heading = tr('reportPdf.destinoHeading')
+  const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const sectionDestino = tr('reportPdf.sectionDestino')
+  const sectionFinalMessage = tr('reportPdf.sectionFinalMessage')
+  const sectionNextSteps = tr('reportPdf.sectionNextSteps')
+
   let body = ''
   let finalMsg = ''
   let nextSteps = []
-  
+
   if (narrativeText && narrativeText.length > 60) {
-    // Clean up markdown if present
     let cleanText = narrativeText
-      .replace(/^##\s*/gm, '') // Remove markdown headers
+      .replace(/^##\s*/gm, '')
       .replace(/^###\s*/gm, '')
-      .replace(/\*\*/g, '') // Remove bold
+      .replace(/\*\*/g, '')
       .replace(/\*/g, '')
       .trim()
-    
-    // Find "O Destino é o Caminho" section (case insensitive)
-    const destinoRegex = /O\s+Destino\s+é\s+o\s+Caminho/i
+
+    const destinoRegex = new RegExp(escapeRegex(sectionDestino), 'i')
     const destinoMatch = cleanText.match(destinoRegex)
     if (destinoMatch) {
       const destinoIndex = destinoMatch.index + destinoMatch[0].length
       const afterDestino = cleanText.substring(destinoIndex).trim()
-      const finalMsgRegex = /Mensagem\s+Final/i
+      const finalMsgRegex = new RegExp(escapeRegex(sectionFinalMessage), 'i')
       const finalMsgMatch = afterDestino.match(finalMsgRegex)
       if (finalMsgMatch) {
         body = afterDestino.substring(0, finalMsgMatch.index).trim()
-        // Clean up any remaining markdown or extra whitespace
         body = body.replace(/\n{3,}/g, '\n\n').trim()
       } else {
         body = afterDestino.substring(0, 600).trim()
       }
     }
-    
-    // Find "Mensagem Final da TRAJETÓRIA" section
-    const finalMsgRegex = /Mensagem\s+Final\s+da\s+TRAJETÓRIA:?/i
+
+    const finalMsgRegex = new RegExp(escapeRegex(sectionFinalMessage) + ':?', 'i')
     const finalMsgMatch = cleanText.match(finalMsgRegex)
     if (finalMsgMatch) {
       const finalMsgIndex = finalMsgMatch.index + finalMsgMatch[0].length
       const afterFinal = cleanText.substring(finalMsgIndex).trim()
-      const nextStepsRegex = /Próximos\s+Passos/i
+      const nextStepsRegex = new RegExp(escapeRegex(sectionNextSteps), 'i')
       const nextStepsMatch = afterFinal.match(nextStepsRegex)
       if (nextStepsMatch) {
         finalMsg = afterFinal.substring(0, nextStepsMatch.index).trim()
@@ -1347,54 +1360,51 @@ export async function composeWithConclusion(coverImageUrl, originalPdfBase64, an
         finalMsg = afterFinal.trim()
       }
     }
-    
-    // Find "Próximos Passos" section
-    const nextStepsRegex = /Próximos\s+Passos/i
+
+    const nextStepsRegex = new RegExp(escapeRegex(sectionNextSteps), 'i')
     const nextStepsMatch = cleanText.match(nextStepsRegex)
     if (nextStepsMatch) {
       const nextStepsIndex = nextStepsMatch.index + nextStepsMatch[0].length
       const afterNext = cleanText.substring(nextStepsIndex).trim()
-      // Extract lines starting with -, •, or numbers
       const lines = afterNext.split('\n').filter(line => {
         const trimmed = line.trim()
         return trimmed.length > 0 && (
-          trimmed.startsWith('-') || 
-          trimmed.startsWith('•') || 
+          trimmed.startsWith('-') ||
+          trimmed.startsWith('*') ||
+          trimmed.startsWith('•') ||
           trimmed.match(/^\d+[\.\)]\s/)
         )
       })
-      nextSteps = lines.map(line => {
-        // Remove list markers and clean up
-        return line.trim()
-          .replace(/^[-•]\s*/, '')
-          .replace(/^\d+[\.\)]\s*/, '')
-          .replace(/\*\*/g, '')
-          .trim()
-      }).filter(step => step.length > 10).slice(0, 5) // Minimum 10 chars per step
+      nextSteps = lines.map(line => line.trim()
+        .replace(/^[-*•]\s*/, '')
+        .replace(/^\d+[\.\)]\s*/, '')
+        .replace(/\*\*/g, '')
+        .trim()
+      ).filter(step => step.length > 10).slice(0, 5)
     }
   }
-  
-  // Fallbacks if parsing failed
+
+  // Fallbacks if parsing failed (use i18n)
   if (!body || body.length < 50) {
-    body = `${firstName ? firstName + ',' : ''} lembre-se: o propósito da sua trajetória é encontrar direção e significado, passo a passo. Este relatório não é o ponto final, e sim o início de um caminho consciente rumo a um futuro alinhado à sua essência.`
+    body = tr('reportPdf.fallbackBody', { prefix: firstName ? firstName + ', ' : '' })
   }
-  
+
   if (!finalMsg || finalMsg.length < 30) {
-    finalMsg = 'Acredite na sua capacidade de fazer a diferença. Cada passo conta para se tornar um protagonista de impacto.'
+    finalMsg = tr('reportPdf.fallbackFinalMsg')
   }
-  
+
   if (nextSteps.length === 0) {
     nextSteps = [
-      'Revise seus resultados com frequência para acompanhar sua evolução.',
-      'Use estes insights para orientar decisões de carreira.',
-      'Busque oportunidades alinhadas aos seus pontos fortes.',
-      'Desenvolva áreas que deseja fortalecer.',
-      'Converse com mentores ou coaches de carreira.'
+      tr('reportPdf.fallbackNextStep1'),
+      tr('reportPdf.fallbackNextStep2'),
+      tr('reportPdf.fallbackNextStep3'),
+      tr('reportPdf.fallbackNextStep4'),
+      tr('reportPdf.fallbackNextStep5')
     ]
   }
-  
-  const finalMsgTitle = 'Mensagem Final da TRAJETÓRIA:'
-  const nextTitle = 'Próximos Passos'
+
+  const finalMsgTitle = tr('reportPdf.finalMessageTitle')
+  const nextTitle = tr('reportPdf.nextStepsTitle')
 
   let cursorY = blockY + blockH - 110
   // heading

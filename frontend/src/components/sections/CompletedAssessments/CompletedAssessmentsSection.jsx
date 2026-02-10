@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { generateCompleteReport } from '../../../services/api'
-import { composeWithConclusion } from '../../../utils/pdfUtils'
+import { setReportLang, composeWithConclusion } from '../../../utils/pdfUtils'
 import coverImageUrl from '../../../assets/capa relatorio.jpg'
 import AssessmentResultsModal from '../../modals/AssessmentResults/AssessmentResultsModal'
 import { TestIcon } from '../../../utils/testIcons'
 
 const CompletedAssessmentsSection = () => {
+  const { t, i18n } = useTranslation()
   const [completedTests, setCompletedTests] = useState({})
   const [hasCompletedTests, setHasCompletedTests] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
@@ -28,30 +30,30 @@ const CompletedAssessmentsSection = () => {
   const getTestInfo = (testId) => {
     const testInfoMap = {
       'anamnese-inicial': {
-        title: 'Anamnese inicial completa',
+        title: t('completedAssessments.itemAnamnese'),
         icon: 'person_add',
         route: '/forms/anamnese-inicial'
       },
       'disc-insight': {
-        title: 'Análise DISC detalhada',
+        title: t('completedAssessments.itemDisc'),
         icon: 'psychology',
         route: '/forms/disc-personality'
       },
       'inteligen-finder': {
-        title: 'Perfil de Inteligências Múltiplas',
+        title: t('completedAssessments.itemMi'),
         icon: 'work',
         route: '/forms/project-intake'
       },
       'multiple-intelligences': {
-        title: 'Perfil de Inteligências Múltiplas',
+        title: t('completedAssessments.itemMi'),
         icon: 'psychology_alt'
       },
       'riasec': {
-        title: 'Código Holland (RIASEC)',
+        title: t('completedAssessments.itemRiasec'),
         icon: 'category'
       },
       'archetypes': {
-        title: 'Arquétipos de Personalidade',
+        title: t('completedAssessments.itemArchetypes'),
         icon: 'auto_awesome'
       }
     }
@@ -60,7 +62,8 @@ const CompletedAssessmentsSection = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('pt-BR', {
+    const locale = i18n.language === 'pt' ? 'pt-BR' : 'en-US'
+    return date.toLocaleDateString(locale, {
       day: '2-digit',
       month: 'long',
       year: 'numeric',
@@ -148,8 +151,10 @@ const CompletedAssessmentsSection = () => {
         objetivosCarreira: anamneseData.objetivosCarreira || []
       }
 
-      const result = await generateCompleteReport(userData, tests)
-      const filename = result.filename || `relatorio-completo-${new Date().getTime()}.pdf`
+      const reportLang = (i18n.resolvedLanguage || i18n.language || 'en').toString().startsWith('pt') ? 'pt' : 'en'
+      setReportLang(reportLang)
+      const result = await generateCompleteReport(userData, tests, reportLang)
+      const filename = result.filename || (reportLang === 'pt' ? `relatorio-completo-${new Date().getTime()}.pdf` : `complete-report-${new Date().getTime()}.pdf`)
       const discResults = completedTests['disc-insight']?.results || {}
       const miResults = completedTests['multiple-intelligences']?.results || {}
       const riasecResults = completedTests['riasec']?.results || {}
@@ -304,12 +309,12 @@ const CompletedAssessmentsSection = () => {
 
   const completedTestsArray = Object.entries(completedTests)
   const reportItems = [
-    { id: 'anamnese-inicial', label: 'Anamnese inicial completa' },
-    { id: 'disc-insight', label: 'Análise DISC detalhada' },
-    { id: 'multiple-intelligences', label: 'Perfil de Inteligências Múltiplas' },
-    { id: 'riasec', label: 'Código Holland (RIASEC)' },
-    { id: 'archetypes', label: 'Arquétipos de Personalidade' },
-    { id: 'recommendations', label: 'Recomendações personalizadas' }
+    { id: 'anamnese-inicial', label: t('completedAssessments.itemAnamnese') },
+    { id: 'disc-insight', label: t('completedAssessments.itemDisc') },
+    { id: 'multiple-intelligences', label: t('completedAssessments.itemMi') },
+    { id: 'riasec', label: t('completedAssessments.itemRiasec') },
+    { id: 'archetypes', label: t('completedAssessments.itemArchetypes') },
+    { id: 'recommendations', label: t('completedAssessments.itemRecommendations') }
   ]
 
   return (
@@ -319,9 +324,9 @@ const CompletedAssessmentsSection = () => {
           <div className="mb-10 flex flex-col items-center gap-4 text-center">
             <span className="material-symbols-outlined text-4xl text-[#6152BD]">task_alt</span>
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Seu relatório completo está pronto</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{t('completedAssessments.reportReadyTitle')}</h2>
               <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300">
-                Revise todos os insights obtidos até agora e gere um PDF com recomendações personalizadas.
+                {t('completedAssessments.reportReadySubtitle')}
               </p>
             </div>
           </div>
@@ -334,7 +339,7 @@ const CompletedAssessmentsSection = () => {
                 </div>
 
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold uppercase tracking-wide text-[#6152BD]">O relatório inclui:</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-[#6152BD]">{t('completedAssessments.reportIncludesLabel')}</p>
                   <ul className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                     {reportItems.map((item) => (
                       <li key={item.id} className="flex items-start gap-3 rounded-xl bg-[#6152BD]/5 px-4 py-3 text-left dark:bg-[#413288]/40">
@@ -352,16 +357,16 @@ const CompletedAssessmentsSection = () => {
                     <span className="material-symbols-outlined text-xl text-emerald-500">info</span>
                     <div>
                       <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                        {allTestsCompleted ? 'Todos os testes completados!' : 'Continue para completar seu relatório.'}
+                        {allTestsCompleted ? t('completedAssessments.allComplete') : t('completedAssessments.continueToComplete')}
                       </p>
                       <p className="text-sm text-slate-600 dark:text-slate-300">
-                        O relatório será gerado em tempo real com base nos dados salvos no navegador. Nenhuma informação é enviada para servidores externos permanentemente.
+                        {t('completedAssessments.privacyNote')}
                       </p>
                     </div>
                   </div>
                   {!allTestsCompleted && (
                     <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                      Pendentes: {missingTests.length} {missingTests.length === 1 ? 'teste' : 'testes'}
+                      {t('completedAssessments.pending', { count: missingTests.length, tests: missingTests.length === 1 ? t('completedAssessments.test') : t('completedAssessments.tests') })}
                     </p>
                   )}
                 </div>
@@ -380,7 +385,7 @@ const CompletedAssessmentsSection = () => {
                 className="group inline-flex items-center justify-center gap-2 self-center rounded-2xl bg-[#6152BD] px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all enabled:hover:scale-[1.02] enabled:hover:shadow-xl enabled:hover:bg-[#5545AA] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="material-symbols-outlined text-lg">{isDownloading ? 'hourglass_top' : 'download'}</span>
-                {isDownloading ? 'Gerando relatório...' : 'Baixar relatório em PDF'}
+                {isDownloading ? t('completedAssessments.generatingReport') : t('completedAssessments.downloadPdf')}
               </button>
             </div>
           </div>
@@ -390,7 +395,7 @@ const CompletedAssessmentsSection = () => {
               onClick={handleClearAllResults}
               className="text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
             >
-              Limpar todos os resultados salvos
+              {t('completedAssessments.clearAllResults')}
             </button>
           </div>
 
@@ -415,13 +420,13 @@ const CompletedAssessmentsSection = () => {
                       <div>
                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{testInfo.title}</h3>
                         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          Concluído em {formatDate(testData.completedAt)}
+                          {t('completedAssessments.completedOn', { date: formatDate(testData.completedAt) })}
                         </p>
                       </div>
                     </div>
                     {isRequired && (
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300">
-                        Incluído no relatório
+                        {t('completedAssessments.includedInReport')}
                       </span>
                     )}
                   </div>

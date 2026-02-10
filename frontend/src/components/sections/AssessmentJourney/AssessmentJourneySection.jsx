@@ -274,14 +274,14 @@ const AssessmentJourneySection = () => {
             <div className="text-center">
               <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                 {t('journey.progressLabel')}
-              </p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                {t('journey.progressText', { completed: completedCount, total: requiredTests.length })}
                 {allTestsCompleted && (
                   <span className="ml-2 text-[#6152BD] dark:text-[#C8A1FF]">
                     {t('journey.progressComplete')}
                   </span>
                 )}
+              </p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                {t('journey.progressText', { completed: completedCount, total: requiredTests.length })}
               </p>
             </div>
             <button
@@ -291,7 +291,7 @@ const AssessmentJourneySection = () => {
                   reportSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
               }}
-              className={`flex w-full max-w-md items-center gap-4 rounded-full border px-8 py-4 shadow-[0_20px_60px_-25px_rgba(65,50,136,0.55)] backdrop-blur transition-all hover:shadow-[0_25px_70px_-20px_rgba(65,50,136,0.65)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
+              className={`flex h-14 w-full max-w-md items-center gap-4 rounded-full border px-8 py-4 mt-6 mb-0 shadow-[0_20px_60px_-25px_rgba(65,50,136,0.55)] backdrop-blur transition-all hover:shadow-[0_25px_70px_-20px_rgba(65,50,136,0.65)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
                 allTestsCompleted
                   ? 'border-[#9266CC]/60 bg-[#6152BD]/10 dark:border-[#9266CC]/40 dark:bg-slate-800/80 dark:shadow-[0_20px_60px_-25px_rgba(146,102,204,0.55)]'
                   : 'border-slate-100/60 bg-white/90 dark:border-slate-700/40 dark:bg-slate-800/80'

@@ -35,11 +35,14 @@ router.post('/generate', async (req, res) => {
     const pdfBuffer = await generateCompletePDF(userData, tests, roadmap, completeNarrative, reportLang);
     const narrative = await generateReportNarrative(userData, tests, reportLang);
 
+    const filename = reportLang === 'pt'
+      ? `relatorio-completo-${Date.now()}.pdf`
+      : `complete-report-${Date.now()}.pdf`;
     res.json({
       narrative,
       roadmap,
       pdfBase64: pdfBuffer.toString('base64'),
-      filename: `relatorio-completo-${Date.now()}.pdf`,
+      filename,
       mimeType: 'application/pdf',
     });
   } catch (error) {

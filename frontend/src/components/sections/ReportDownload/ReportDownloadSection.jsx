@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import { generateCompleteReport, checkBackendHealth } from '../../../services/api'
-import { prependCoverAndSummary, composeWithCoverSummaryAnamnese, composeWithCoverSummaryAnamneseDisc, composeWithCoverSummaryAnamneseDiscMI, composeWithCoverSummaryAnamneseDiscMIRiasec, composeWithCoverSummaryAnamneseDiscMIRiasecArchetypes, composeWithHighlights, composeWithMoreHighlights, composeWithActionPlan, composeWithConclusion } from '../../../utils/pdfUtils'
+import { setReportLang, prependCoverAndSummary, composeWithCoverSummaryAnamnese, composeWithCoverSummaryAnamneseDisc, composeWithCoverSummaryAnamneseDiscMI, composeWithCoverSummaryAnamneseDiscMIRiasec, composeWithCoverSummaryAnamneseDiscMIRiasecArchetypes, composeWithHighlights, composeWithMoreHighlights, composeWithActionPlan, composeWithConclusion } from '../../../utils/pdfUtils'
 import coverImageUrl from '../../../assets/capa relatorio.jpg'
 
 const markdownComponents = {
@@ -131,8 +131,10 @@ const ReportDownloadSection = () => {
         objetivosCarreira: anamneseData.objetivosCarreira || []
       }
 
-      const result = await generateCompleteReport(userData, tests, i18n.language || 'en')
-      const filename = result.filename || `relatorio-completo-${new Date().getTime()}.pdf`
+      const reportLang = (i18n.resolvedLanguage || i18n.language || 'en').toString().startsWith('pt') ? 'pt' : 'en'
+      setReportLang(reportLang)
+      const result = await generateCompleteReport(userData, tests, reportLang)
+      const filename = result.filename || (reportLang === 'pt' ? `relatorio-completo-${new Date().getTime()}.pdf` : `complete-report-${new Date().getTime()}.pdf`)
 
       // Compose PDF with cover + summary + anamnese + disc + MI + riasec + archetypes + highlights
       const discResults = completedTests['disc-insight']?.results || {}
@@ -303,41 +305,9 @@ const ReportDownloadSection = () => {
                         {t('reportDownload.generatedAt', { date: new Date(reportData.generatedAt).toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US') })}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        // reconstruct userData from localStorage to ensure consistency
-                        const completedTests = JSON.parse(localStorage.getItem('completedTests') || '{}')
-                        const anamneseData = completedTests['anamnese-inicial']?.data || {}
-                        const userDataInline = {
-                          nomeCompleto: anamneseData.nomeCompleto || 'Não informado',
-                          idade: anamneseData.idade || '',
-                          cidadeEstado: anamneseData.cidadeEstado || '',
-                          email: anamneseData.email || '',
-                          nivelEscolaridade: anamneseData.nivelEscolaridade || '',
-                          areaEstudo: anamneseData.areaEstudo || '',
-                          situacaoProfissional: anamneseData.situacaoProfissional || '',
-                          ocupacaoAtual: anamneseData.ocupacaoAtual || '',
-                          areasInteresse: anamneseData.areasInteresse || [],
-                          objetivosCarreira: anamneseData.objetivosCarreira || []
-                        }
-                        const completedTests2 = JSON.parse(localStorage.getItem('completedTests') || '{}')
-                        const discInline = completedTests2['disc-insight']?.results || {}
-                        const miInline = completedTests2['multiple-intelligences']?.results || {}
-                        const riasecInline = completedTests2['riasec']?.results || {}
-                        const archInline = completedTests2['archetypes']?.results || {}
-                        const narrativeText = reportData.narrative || ''
-                        const composedBase64 = await composeWithConclusion(coverImageUrl, reportData.pdfBase64, userDataInline, discInline, miInline, riasecInline, archInline, narrativeText)
-                        downloadPdfFromBase64(composedBase64, reportData.filename, reportData.mimeType || 'application/pdf')
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#6152BD] rounded-full shadow hover:shadow-lg transition-all"
-                    >
-                      <span className="material-symbols-outlined text-base">download</span>
-                      {t('reportDownload.downloadAgain')}
-                    </button>
                   </div>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl p-6 overflow-y-auto max-h-[480px] shadow-inner">
+                <div className="report-narrative-scroll bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl p-6 overflow-y-auto max-h-[480px] shadow-inner">
                   <ReactMarkdown components={markdownComponents}>
                     {reportData.narrative}
                   </ReactMarkdown>

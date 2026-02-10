@@ -47,3 +47,47 @@ h1, h2, h3, h4, h5, h6 {
   display: none;  /* Chrome, Safari and Opera */
 }
 
+/* Report narrative scrollbar – matches page and brand palette */
+.report-narrative-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #6152BD #e2e8f0;  /* thumb track – Firefox */
+}
+
+.dark .report-narrative-scroll {
+  scrollbar-color: #9266CC #334155;  /* thumb track – Firefox dark */
+}
+
+.report-narrative-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.report-narrative-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+  margin: 4px 0;
+}
+
+.dark .report-narrative-scroll::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+.report-narrative-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #413288 0%, #6152BD 40%, #9266CC 70%, rgba(255, 255, 255, 0.95) 100%);
+  border-radius: 10px;
+  border: 2px solid #f1f5f9;
+}
+
+.report-narrative-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #6152BD 0%, #9266CC 60%, rgba(255, 255, 255, 0.98) 100%);
+}
+
+.dark .report-narrative-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #413288 0%, #6152BD 40%, #9266CC 70%, #cbd5e1 100%);
+  border-color: #1e293b;
+}
+
+.dark .report-narrative-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #6152BD 0%, #9266CC 60%, #C8A1FF 100%);
+}
+
