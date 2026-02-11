@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import { generateCompleteReport, checkBackendHealth } from '../../../services/api'
 import { setReportLang, prependCoverAndSummary, composeWithCoverSummaryAnamnese, composeWithCoverSummaryAnamneseDisc, composeWithCoverSummaryAnamneseDiscMI, composeWithCoverSummaryAnamneseDiscMIRiasec, composeWithCoverSummaryAnamneseDiscMIRiasecArchetypes, composeWithHighlights, composeWithMoreHighlights, composeWithActionPlan, composeWithConclusion } from '../../../utils/pdfUtils'
-import coverImageUrl from '../../../assets/capa relatorio.jpg'
+import coverImageUrl from '../../../assets/relatorio/capa relatorio.jpg'
 
 const markdownComponents = {
   h2: ({ node, ...props }) => (
@@ -47,6 +47,25 @@ const ReportDownloadSection = () => {
 
   const totalTests = requiredTests.length
   const allTestsCompleted = completedCount === totalTests
+
+  useEffect(() => {
+    // Restore last generated report so it persists after reload
+    try {
+      const saved = localStorage.getItem('lastReportData')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed?.narrative) {
+          setReportData({
+            narrative: parsed.narrative,
+            generatedAt: parsed.generatedAt || null,
+            filename: parsed.filename || null
+          })
+        }
+      }
+    } catch (_) {
+      // ignore invalid stored data
+    }
+  }, [])
 
   useEffect(() => {
     // Atualiza o estado sempre que a página carrega
@@ -145,11 +164,22 @@ const ReportDownloadSection = () => {
       const composedBase64 = await composeWithConclusion(coverImageUrl, result.pdfBase64, userData, discResults, miResults, riasecResults, archetypesResults, narrativeText)
       downloadPdfFromBase64(composedBase64, filename, result.mimeType || 'application/pdf')
 
+      const generatedAt = new Date().toISOString()
       setReportData({
         ...result,
         filename,
-        generatedAt: new Date().toISOString(),
+        generatedAt,
       })
+      // Persist last report so it survives page reload
+      try {
+        localStorage.setItem('lastReportData', JSON.stringify({
+          narrative: result.narrative || '',
+          generatedAt,
+          filename
+        }))
+      } catch (_) {
+        // ignore quota errors
+      }
       
     } catch (err) {
       console.error('Erro ao baixar relatório:', err)

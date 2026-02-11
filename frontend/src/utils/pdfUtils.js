@@ -99,8 +99,8 @@ export async function prependCoverAndSummary(coverImageUrl, originalPdfBase64) {
   const pageSize = [595.28, 841.89] // A4 portrait
   const [width, height] = pageSize
 
-  // COVER
-  {
+  // COVER (Portuguese only; English version starts with SUMARY.jpeg)
+  if (getReportLang() !== 'en') {
     const imgResp = await fetch(coverImageUrl)
     const imgBytes = new Uint8Array(await imgResp.arrayBuffer())
     const isPng = imgBytes[0] === 0x89 && imgBytes[1] === 0x50
@@ -116,11 +116,13 @@ export async function prependCoverAndSummary(coverImageUrl, originalPdfBase64) {
     coverPage.drawImage(embeddedImage, { x, y, width: drawWidth, height: drawHeight })
   }
 
-  // SUMMARY - use SUMARIO.jpg image
+  // SUMMARY - use SUMARIO.jpg (pt) or SUMARY.jpeg (en) from relatorio folder
   {
     let usedImage = false
+    const isEn = getReportLang() === 'en'
+    const summaryFilename = isEn ? 'SUMARY.jpeg' : 'SUMARIO.jpg'
     try {
-      const summaryUrl = new URL('../assets/SUMARIO.jpg', import.meta.url).href
+      const summaryUrl = new URL(`../assets/relatorio/${summaryFilename}`, import.meta.url).href
       const resp = await fetch(summaryUrl)
       if (resp.ok) {
         const imgBytes = new Uint8Array(await resp.arrayBuffer())
@@ -136,7 +138,7 @@ export async function prependCoverAndSummary(coverImageUrl, originalPdfBase64) {
         usedImage = true
       }
     } catch (e) {
-      console.warn('Erro ao carregar SUMARIO.jpg:', e)
+      console.warn(`Erro ao carregar ${summaryFilename}:`, e)
     }
     if (!usedImage) {
       const page = composedPdf.addPage(pageSize)
@@ -157,6 +159,28 @@ export async function prependCoverAndSummary(coverImageUrl, originalPdfBase64) {
       const headerTextX = headerX + (headerW - textWidth) / 2
       const headerTextY = headerY + (headerH - headerFontSize) / 2 + 6
       page.drawText(sanitizeForWinAnsi(headerText), { x: headerTextX, y: headerTextY, size: headerFontSize, font: boldFont, color: textColor })
+    }
+  }
+
+  // ROADMAP (English only) - use relatory roadmap.jpeg from relatorio folder
+  if (getReportLang() === 'en') {
+    try {
+      const roadmapUrl = new URL('../assets/relatorio/relatory roadmap.jpeg', import.meta.url).href
+      const resp = await fetch(roadmapUrl)
+      if (resp.ok) {
+        const imgBytes = new Uint8Array(await resp.arrayBuffer())
+        const isPng = imgBytes[0] === 0x89 && imgBytes[1] === 0x50
+        const embedded = isPng ? await composedPdf.embedPng(imgBytes) : await composedPdf.embedJpg(imgBytes)
+        const page = composedPdf.addPage(pageSize)
+        const scale = Math.max(width / embedded.width, height / embedded.height)
+        const drawWidth = embedded.width * scale
+        const drawHeight = embedded.height * scale
+        const x = (width - drawWidth) / 2
+        const y = (height - drawHeight) / 2
+        page.drawImage(embedded, { x, y, width: drawWidth, height: drawHeight })
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar relatory roadmap.jpeg:', e)
     }
   }
 
